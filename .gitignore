@@ -1,0 +1,7 @@
+# Dữ liệu gốc chưa mã hoá: KHÔNG được đưa lên GitHub
+seed.plain.json
+*.plain.json
+.claude/
+
+# Bản lưu trữ cá nhân (có dữ liệu thật), không đưa lên GitHub
+luu-tru/

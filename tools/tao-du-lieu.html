@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Công cụ tạo dữ liệu mã hoá – Game Work Hub</title>
+<style>
+body{margin:0;background:#F4F5F7;color:#1B1E24;font:15px/1.5 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+main{max-width:640px;margin:0 auto;padding:24px 16px 48px;display:flex;flex-direction:column;gap:20px}
+h1{margin:0;font-size:24px}
+section{background:#fff;border:1px solid #E3E5EA;border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px}
+h2{margin:0;font-size:17px}
+p{margin:0;color:#5B6270}
+label{display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:13px;color:#3D434E}
+input{min-height:44px;padding:8px 12px;border:1px solid #DADDE3;border-radius:10px;font:inherit;font-weight:400;background:#fff}
+button{min-height:44px;padding:0 18px;border:none;border-radius:10px;background:#1B1E24;color:#fff;font:inherit;font-weight:600;cursor:pointer}
+button:disabled{opacity:.5}
+.ok{background:#E3F4EA;border:1px solid #A9D9BC;color:#146C3A;border-radius:10px;padding:10px 14px;font-weight:600}
+.err{background:#FDE8E8;color:#A61B1B;border-radius:10px;padding:10px 14px;font-weight:600}
+.note{background:#FFF4D6;border:1px solid #EBCB79;color:#5C4200;border-radius:10px;padding:10px 14px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Công cụ tạo dữ liệu mã hoá</h1>
+  <p class="note">Công cụ này chạy ngay trên máy bạn. Mật khẩu và dữ liệu <b>không</b> được gửi đi đâu cả. Tạo xong sẽ tải về file <b>data.enc.json</b>: đặt file này vào thư mục gốc của web.</p>
+
+  <section aria-labelledby="h1">
+    <h2 id="h1">1. Tạo dữ liệu lần đầu</h2>
+    <p>Chọn file <b>seed.plain.json</b> (dữ liệu gốc chưa mã hoá), đặt tên đăng nhập và mật khẩu cho web. Nên dùng mật khẩu dài (từ 10 ký tự) và đừng dùng lại mật khẩu của dịch vụ khác.</p>
+    <form id="f1" style="display:flex;flex-direction:column;gap:14px">
+      <label>File dữ liệu gốc (seed.plain.json)<input type="file" id="seed" accept=".json,application/json" required></label>
+      <label>Tên đăng nhập<input id="u1" autocomplete="off" spellcheck="false" required></label>
+      <label>Mật khẩu<input id="p1" type="password" autocomplete="new-password" minlength="8" required></label>
+      <label>Nhập lại mật khẩu<input id="p1b" type="password" autocomplete="new-password" required></label>
+      <button type="submit" id="b1">Tạo và tải data.enc.json</button>
+      <div id="m1" role="status"></div>
+    </form>
+  </section>
+
+  <section aria-labelledby="h2">
+    <h2 id="h2">2. Đổi tên đăng nhập hoặc mật khẩu</h2>
+    <p>Chọn file <b>data.enc.json</b> hiện tại, nhập tài khoản cũ và tài khoản mới. Dữ liệu được giữ nguyên.</p>
+    <form id="f2" style="display:flex;flex-direction:column;gap:14px">
+      <label>File data.enc.json hiện tại<input type="file" id="cur" accept=".json,application/json" required></label>
+      <label>Tên đăng nhập cũ<input id="u0" autocomplete="off" spellcheck="false" required></label>
+      <label>Mật khẩu cũ<input id="p0" type="password" autocomplete="off" required></label>
+      <label>Tên đăng nhập mới<input id="u2" autocomplete="off" spellcheck="false" required></label>
+      <label>Mật khẩu mới<input id="p2" type="password" autocomplete="new-password" minlength="8" required></label>
+      <label>Nhập lại mật khẩu mới<input id="p2b" type="password" autocomplete="new-password" required></label>
+      <button type="submit" id="b2">Đổi và tải data.enc.json</button>
+      <div id="m2" role="status"></div>
+    </form>
+  </section>
+</main>
+<script src="../js/crypto.js"></script>
+<script>
+(function () {
+  'use strict';
+  var C = window.WH_CRYPTO;
+  function say(id, cls, text) { var el = document.getElementById(id); el.className = cls; el.textContent = text; }
+  function download(name, obj) {
+    var b = new Blob([JSON.stringify(obj)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(b); a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  async function readJson(file) { return JSON.parse(await file.text()); }
+
+  document.getElementById('f1').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var u = document.getElementById('u1').value.trim(), p = document.getElementById('p1').value, pb = document.getElementById('p1b').value;
+    if (!u) return say('m1', 'err', 'Hãy nhập tên đăng nhập.');
+    if (p !== pb) return say('m1', 'err', 'Hai mật khẩu chưa giống nhau.');
+    if (p.length < 8) return say('m1', 'err', 'Mật khẩu cần ít nhất 8 ký tự.');
+    var btn = document.getElementById('b1'); btn.disabled = true; say('m1', '', 'Đang mã hoá…');
+    try {
+      var seed = await readJson(document.getElementById('seed').files[0]);
+      if (!seed || (!Array.isArray(seed.games) && !seed.v)) throw new Error('bad');
+      var f = await C.makeFile(u, p, seed);
+      download('data.enc.json', f);
+      say('m1', 'ok', 'Xong. Đã tải file data.enc.json. Hãy đặt nó vào thư mục gốc của web (cạnh index.html).');
+    } catch (err) {
+      say('m1', 'err', 'Không đọc được file dữ liệu gốc. Hãy chọn đúng file seed.plain.json.');
+    }
+    btn.disabled = false;
+  });
+
+  document.getElementById('f2').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var p2 = document.getElementById('p2').value;
+    if (p2 !== document.getElementById('p2b').value) return say('m2', 'err', 'Hai mật khẩu mới chưa giống nhau.');
+    var btn = document.getElementById('b2'); btn.disabled = true; say('m2', '', 'Đang xử lý…');
+    try {
+      var cur = await readJson(document.getElementById('cur').files[0]);
+      var opened;
+      try { opened = await C.openFile(cur, document.getElementById('u0').value, document.getElementById('p0').value, false); }
+      catch (err) { throw new Error('login'); }
+      var f = await C.makeFile(document.getElementById('u2').value, p2, opened.data);
+      download('data.enc.json', f);
+      say('m2', 'ok', 'Xong. Đã tải file data.enc.json mới. Thay file cũ trong thư mục web bằng file này.');
+    } catch (err) {
+      say('m2', 'err', err.message === 'login' ? 'Sai tên đăng nhập hoặc mật khẩu cũ.' : 'Không đọc được file data.enc.json.');
+    }
+    btn.disabled = false;
+  });
+})();
+</script>
+</body>
+</html>
