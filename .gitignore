@@ -5,3 +5,7 @@ seed.plain.json
 
 # Bản lưu trữ cá nhân (có dữ liệu thật), không đưa lên GitHub
 luu-tru/
+
+# File mở web trên máy cá nhân
+MO-WEB-TREN-MAY.bat
+mo-web.ps1
