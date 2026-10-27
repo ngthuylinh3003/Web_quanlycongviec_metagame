@@ -62,15 +62,6 @@
     stress: 'Hít sâu nào. Chuyện gì làm bạn căng thẳng vậy?',
     sad: 'Mình ở đây nè. Bạn muốn kể gì không?'
   };
-  var MOOD_SHIN = {
-    happy: 'Vui hén! Ăn chocobi ăn mừng thôi!',
-    chill: 'Yên bình quá, ngủ trưa tí nhé~',
-    busy: 'Từng việc một thôi, mình cổ vũ nè!',
-    tired: 'Mệt thì nghỉ đi, mai làm tiếp cũng được.',
-    stress: 'Hít thở... rồi ăn bánh cho hết giận!',
-    sad: 'Buồn thì ôm cái nè. Có mình đây!',
-    none: 'Hôm nay bạn thấy sao nè?'
-  };
   var MOOD_PROMPTS = {
     happy: ['Hôm nay vui ghê, mọi thứ đều suôn sẻ!', 'Làm xong một việc khó, sảng khoái quá!', 'Today feels like a good day!'],
     chill: ['Hôm nay nhẹ nhàng, làm việc từ từ thôi.', 'Một ngày yên bình, cà phê ngon.', 'Slow and steady, mình ổn lắm.'],
@@ -156,7 +147,7 @@
 
   /* ================= Trạng thái ================= */
   var KEY = null, FILE = null, S = null;
-  var ui = { view: 'games', editing: false, saved: false, trash: [], team: 'all', q: '', showHidden: false,
+  var ui = { view: 'games', editing: false, saved: false, trash: [], team: 'all', q: '', showHidden: false, showHiddenItems: false, showHiddenNotes: false,
     notesMode: 'cards', notesSort: 'desc', period: '', taskTeam: 'all', imp: null, toast: '', toastType: 'info' };
   var prevTab = null, sceneKey = '', typer = null, cheerIdx = null;
 
@@ -474,7 +465,7 @@
     for (var i = 0; i < list.length; i++) fit(list[i]);
   }
 
-  /* ----- Khung nhân vật: lời chào mỗi ngày + Linh + Shin-chan ----- */
+  /* ----- Khung nhân vật: lời chào mỗi ngày + Linh ----- */
   function dayCheer() {
     if (cheerIdx === null) {
       var d = new Date(), seed = d.getFullYear() * 372 + d.getMonth() * 31 + d.getDate();
@@ -498,10 +489,8 @@
     var bubble = isMood
       ? '<div class="say" aria-live="polite"><span id="saytxt"></span><i class="caret">▌</i></div>'
       : '<button type="button" class="say" data-act="newcheer" title="Bấm để đổi câu khác" aria-live="polite"><span id="saytxt"></span><i class="caret">▌</i></button>';
-    var shin = '<div class="shinrow"><span class="shin"><img class="px fa" alt="" src="' + SPR + 'shin-a.png' + V + '"><img class="px fb" alt="" src="' + SPR + 'shin-b.png' + V + '"></span>' +
-      (isMood ? '<div class="say small">' + esc(MOOD_SHIN[ui.md.mood] || MOOD_SHIN.none) + '</div>' : '') + '</div>';
     return '<div class="scenecard"><div class="pbadge">PLAYER 1 READY</div>' +
-      '<div class="sky"><div class="sayrow"><div class="leftcol">' + bubble + shin + '</div>' +
+      '<div class="sky"><div class="sayrow"><div class="leftcol">' + bubble + '</div>' +
       '<img class="px sprite" alt="" src="' + SPR + sprite + V + '"></div><div class="grass"></div></div></div>';
   }
   function typeSay(text) {
@@ -555,13 +544,19 @@
       return '<div class="tools">' + searchBox('Tìm game, note…') +
         '<button type="button" class="btn ' + (ui.showHidden ? 'on' : '') + '" data-act="toggle-hidden" aria-pressed="' + ui.showHidden + '">Game ẩn · ' + hidden + '</button></div>' + banners(add);
     }
-    if (v === 'teams') return '<div class="tools">' + searchBox('Tìm link, note…') + '</div>' + banners('');
+    if (v === 'teams') {
+      var hiItems = 0;
+      S.boards.forEach(function (b) { (S.teamItems[b.id] || []).forEach(function (x) { if (x.hidden) hiItems++; }); });
+      return '<div class="tools">' + searchBox('Tìm link, note…') +
+        '<button type="button" class="btn ' + (ui.showHiddenItems ? 'on' : '') + '" data-act="toggle-hidden-items" aria-pressed="' + ui.showHiddenItems + '">Mục ẩn · ' + hiItems + '</button></div>' + banners('');
+    }
     if (v === 'notes') {
       var addN = ui.editing ? '<button type="button" class="mini" data-act="note-add">+ Thêm ghi chú</button>' : '';
       return '<div class="tools">' + searchBox('Tìm ghi chú…') +
         '<div class="seg" role="group" aria-label="Kiểu hiển thị"><button type="button" class="' + (ui.notesMode === 'cards' ? 'on' : '') + '" data-act="notes-mode" data-mode="cards" aria-pressed="' + (ui.notesMode === 'cards') + '">Thẻ</button>' +
         '<button type="button" class="' + (ui.notesMode === 'table' ? 'on' : '') + '" data-act="notes-mode" data-mode="table" aria-pressed="' + (ui.notesMode === 'table') + '">Bảng</button></div>' +
-        '<button type="button" class="btn" data-act="notes-sort">Sắp xếp theo ngày: ' + (ui.notesSort === 'desc' ? 'mới nhất trước ↓' : 'cũ nhất trước ↑') + '</button></div>' + banners(addN);
+        '<button type="button" class="btn" data-act="notes-sort">Sắp xếp theo ngày: ' + (ui.notesSort === 'desc' ? 'mới nhất trước ↓' : 'cũ nhất trước ↑') + '</button>' +
+        '<button type="button" class="btn ' + (ui.showHiddenNotes ? 'on' : '') + '" data-act="toggle-hidden-notes" aria-pressed="' + ui.showHiddenNotes + '">Ghi chú ẩn · ' + S.notes.filter(function (n) { return n.hidden; }).length + '</button></div>' + banners(addN);
     }
     if (v === 'mood') return banners('');
     return '<div class="tools"><button type="button" class="btn" data-act="new-table">+ Tạo bảng mới</button>' +
@@ -628,8 +623,9 @@
     var cards = S.boards.map(function (b) {
       var c = PAL[b.color] || PAL.ink;
       var list = S.teamItems[b.id] || [];
-      var shown = list.filter(function (x) { return !q || (x.title + ' ' + x.url + ' ' + x.text).toLowerCase().indexOf(q) >= 0; });
-      var nl = list.filter(function (x) { return x.kind === 'link'; }).length;
+      var shown = list.filter(function (x) { return (!x.hidden || ui.showHiddenItems) && (!q || (x.title + ' ' + x.url + ' ' + x.text).toLowerCase().indexOf(q) >= 0); });
+      var vis = list.filter(function (x) { return !x.hidden; });
+      var nl = vis.filter(function (x) { return x.kind === 'link'; }).length;
       var head = ui.editing
         ? '<div class="chead"><input spellcheck="false" aria-label="Tên nhóm" value="' + esc(b.name) + '" placeholder="Tên nhóm" data-c="board" data-bid="' + esc(b.id) + '" data-k="name"></div>' +
           '<div class="boardbar"><label>Kích thước<select class="sizesel" data-c="board" data-bid="' + esc(b.id) + '" data-k="cols">' +
@@ -637,7 +633,7 @@
           '<label>Màu<select class="sizesel" data-c="board" data-bid="' + esc(b.id) + '" data-k="color">' +
           BOARD_COLORS.map(function (s) { return '<option value="' + s[0] + '"' + (s[0] === b.color ? ' selected' : '') + '>' + s[1] + '</option>'; }).join('') + '</select></label>' +
           '<button type="button" class="del" data-act="board-del" data-bid="' + esc(b.id) + '" aria-label="Xoá nhóm" style="margin-left:auto">' + TRASH + '</button></div>'
-        : '<div class="chead"><h2>' + esc(b.name) + '</h2><span>' + nl + ' link · ' + (list.length - nl) + ' note</span></div>';
+        : '<div class="chead"><h2>' + esc(b.name) + '</h2><span>' + nl + ' link · ' + (vis.length - nl) + ' note</span></div>';
       return '<section class="card span' + b.cols + '" style="' + cvars(c) + '" aria-label="' + esc(b.name) + '">' + head +
         '<div class="clist c' + b.cols + '">' + shown.map(function (x) { return titem(b.id, x); }).join('') + '</div>' +
         (shown.length ? '' : '<div class="empty">Chưa có mục nào.</div>') +
@@ -658,32 +654,36 @@
     } else {
       inner = fld({ c: 'titem', id: x.id, k: 'text', val: x.text, area: 1, cls: 'notefield', ph: 'Viết note…', label: 'Nội dung note', grp: key });
     }
-    return '<div class="item"><button type="button" class="kind ' + (link ? '' : 'note') + '"' + (ed ? '' : ' disabled') +
+    return '<div class="item' + (x.hidden ? ' is-hidden' : '') + '"><button type="button" class="kind ' + (link ? '' : 'note') + '"' + (ed ? '' : ' disabled') +
       ' data-act="titem-kind" data-grp="' + esc(key) + '" data-id="' + x.id + '" aria-label="' + (link ? 'Đổi thành Note' : 'Đổi thành Link') + '">' + (link ? 'LINK' : 'NOTE') + '</button>' +
-      '<div class="ibody">' + inner + '</div>' +
-      (ed ? '<button type="button" class="del" data-act="titem-del" data-grp="' + esc(key) + '" data-id="' + x.id + '" aria-label="Xoá mục">' + TRASH + '</button>' : '') + '</div>';
+      '<div class="ibody">' + inner + (x.hidden ? '<span class="tag">Đã ẩn</span>' : '') + '</div>' +
+      (ed ? '<button type="button" class="minibtn" data-act="titem-hide" data-grp="' + esc(key) + '" data-id="' + x.id + '">' + (x.hidden ? 'Hiện' : 'Ẩn') + '</button>' +
+        '<button type="button" class="del" data-act="titem-del" data-grp="' + esc(key) + '" data-id="' + x.id + '" aria-label="Xoá mục">' + TRASH + '</button>' : '') + '</div>';
   }
 
   /* ================= 3. Ghi chú ================= */
   function notesBody() {
     var q = ui.q.toLowerCase();
-    var rows = S.notes.filter(function (n) { return !q || (n.date + ' ' + n.text).toLowerCase().indexOf(q) >= 0; });
+    var rows = S.notes.filter(function (n) { return (!n.hidden || ui.showHiddenNotes) && (!q || (n.date + ' ' + n.text).toLowerCase().indexOf(q) >= 0); });
     var dir = ui.notesSort === 'asc' ? 1 : -1;
     rows = rows.slice().sort(function (a, b) {
       if (a.date === b.date) return dir * (a.id - b.id);
       return dir * (a.date < b.date ? -1 : 1);
     });
     if (!rows.length) return '<div class="nodata">Chưa có ghi chú nào. Bấm Chỉnh sửa rồi + Thêm ghi chú.</div>';
-    var del = function (n) { return ui.editing ? '<button type="button" class="del" data-act="note-del" data-id="' + n.id + '" aria-label="Xoá ghi chú">' + TRASH + '</button>' : ''; };
+    var del = function (n) {
+      return ui.editing ? '<span class="acts"><button type="button" class="minibtn" data-act="note-hide" data-id="' + n.id + '">' + (n.hidden ? 'Hiện' : 'Ẩn') + '</button>' +
+        '<button type="button" class="del" data-act="note-del" data-id="' + n.id + '" aria-label="Xoá ghi chú">' + TRASH + '</button></span>' : '';
+    };
     if (ui.notesMode === 'cards') {
       return '<div class="ncards">' + rows.map(function (n) {
-        return '<article class="ncard"><div class="top">' + fld({ c: 'note', id: n.id, k: 'date', val: n.date, type: 'date', label: 'Ngày' }) + del(n) + '</div>' +
+        return '<article class="ncard' + (n.hidden ? ' is-hidden' : '') + '"><div class="top">' + fld({ c: 'note', id: n.id, k: 'date', val: n.date, type: 'date', label: 'Ngày' }) + (n.hidden ? '<span class="tag">Đã ẩn</span>' : '') + del(n) + '</div>' +
           fld({ c: 'note', id: n.id, k: 'text', val: n.text, area: 1, ph: 'Viết note…', label: 'Ghi chú' }) + '</article>';
       }).join('') + '</div>';
     }
     return '<section class="ntable" aria-label="Bảng ghi chú"><div class="scroll"><div class="in"><div class="nth"><span>Ngày</span><span>Note</span><span></span></div>' +
       rows.map(function (n) {
-        return '<div class="nrow"><div>' + fld({ c: 'note', id: n.id, k: 'date', val: n.date, type: 'date', label: 'Ngày' }) + '</div><div>' +
+        return '<div class="nrow' + (n.hidden ? ' is-hidden' : '') + '"><div>' + fld({ c: 'note', id: n.id, k: 'date', val: n.date, type: 'date', label: 'Ngày' }) + (n.hidden ? '<span class="tag">Đã ẩn</span>' : '') + '</div><div>' +
           fld({ c: 'note', id: n.id, k: 'text', val: n.text, area: 1, ph: 'Viết note…', label: 'Ghi chú' }) + '</div><div class="delcol">' + del(n) + '</div></div>';
       }).join('') + '</div></div></section>';
   }
@@ -1134,6 +1134,10 @@
       case 'note-del': removeTo('note', null, id); break;
       case 'notes-mode': ui.notesMode = el.dataset.mode; break;
       case 'notes-sort': ui.notesSort = ui.notesSort === 'desc' ? 'asc' : 'desc'; break;
+      case 'toggle-hidden-items': ui.showHiddenItems = !ui.showHiddenItems; break;
+      case 'toggle-hidden-notes': ui.showHiddenNotes = !ui.showHiddenNotes; break;
+      case 'titem-hide': { i = idxById(S.teamItems[grp], id); if (i >= 0) S.teamItems[grp][i].hidden = !S.teamItems[grp][i].hidden; break; }
+      case 'note-hide': { i = idxById(S.notes, id); if (i >= 0) S.notes[i].hidden = !S.notes[i].hidden; break; }
       case 'pick-period': ui.period = el.dataset.id; ui.taskTeam = 'all'; break;
       case 'task-team': ui.taskTeam = team; break;
       case 'trow-add': S.tables[ui.period] = S.tables[ui.period] || []; S.tables[ui.period].push({ id: nid(), team: team, game: '', done: '', pending: '', note: '' }); break;

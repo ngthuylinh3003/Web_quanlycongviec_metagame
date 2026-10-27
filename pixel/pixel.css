@@ -79,7 +79,7 @@ nav{flex:1 1 0;min-width:280px;overflow-x:auto;padding-top:2px}
 .pbadge{align-self:flex-start;font-size:9px;background:var(--gold);border:2px solid var(--ink);border-radius:8px;padding:7px 9px}
 .sky{background:var(--blue);border:2px solid var(--ink);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;flex:1}
 .sayrow{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:16px 16px 0;flex:1}
-.leftcol{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;gap:10px;min-width:0}
+.leftcol{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:10px;min-width:0;padding-bottom:14px}
 .say{position:relative;background:#fff;border:2px solid var(--ink);border-radius:14px;padding:10px 14px;font-weight:700;font-size:14.5px;line-height:1.45;max-width:240px;min-height:84px;text-align:left;white-space:pre-line;cursor:pointer}
 .say:before,.say:after{content:"";position:absolute;width:0;height:0}
 .say:before{right:-12px;top:22px;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:11px solid var(--ink)}
@@ -88,11 +88,6 @@ nav{flex:1 1 0;min-width:280px;overflow-x:auto;padding-top:2px}
 .hintsay{font-size:11px;color:var(--muted);font-weight:700;padding-left:4px}
 .grass{height:16px;background:#7BC47F;border-top:2px solid var(--ink)}
 .sprite{height:132px;width:auto;flex-shrink:0;margin-bottom:-2px}
-.shin{position:relative;display:inline-block;height:92px;flex-shrink:0;margin-bottom:-2px}
-.shin img{height:92px;width:auto}
-.shin img+img{position:absolute;left:0;top:0}
-.shin .fa{animation:fa .7s steps(1,end) infinite}
-.shin .fb{animation:fb .7s steps(1,end) infinite}
 
 /* ===== Nút, ô nhập, thông báo ===== */
 .tools{display:flex;flex-wrap:wrap;gap:12px;align-items:center;position:relative;z-index:1}
@@ -219,7 +214,7 @@ a.ltitle:hover{color:var(--accent);text-decoration:underline}
 .ncard .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .ncard input[type=date]{width:auto;font-weight:800}
 .ntable .in{min-width:640px}
-.nth,.nrow{display:grid;grid-template-columns:200px 1fr 60px;gap:12px;align-items:start;padding:0 20px}
+.nth,.nrow{display:grid;grid-template-columns:200px 1fr 112px;gap:12px;align-items:start;padding:0 20px}
 .nth{background:var(--ink);color:#fff;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
 .nth span{padding:12px 10px}
 .nrow{border-top:1px solid var(--soft);padding-top:10px;padding-bottom:10px}
@@ -280,10 +275,11 @@ a.ltitle:hover{color:var(--accent);text-decoration:underline}
 
 /* ===== Khoảng cách giữa các khối trong một tab ===== */
 #body{display:flex;flex-direction:column;gap:32px}
-.shinrow{display:flex;align-items:flex-end;gap:12px}
-.say.small{min-height:0;font-size:12.5px;padding:7px 11px;max-width:150px;margin-bottom:40px;cursor:default;font-weight:700}
-.say.small:before{right:auto;left:-12px;top:12px;border-left:0;border-right:11px solid var(--ink)}
-.say.small:after{right:auto;left:-7px;top:15px;border-left:0;border-right:8px solid #fff}
+/* Mục / ghi chú bị ẩn */
+.item.is-hidden,.ncard.is-hidden,.nrow.is-hidden{opacity:.55}
+.item .minibtn{min-width:44px;height:32px;padding:0 8px;font-size:12px;margin-top:2px;flex:none}
+.item .tag,.ncard .tag,.nrow .tag{margin:4px 10px 2px}
+.ncard .top .tag{margin:0}
 
 /* ===== Cảm xúc hôm nay ===== */
 .mtop{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:28px;align-items:start}
@@ -373,5 +369,5 @@ footer .flinks button:hover{color:#fff}
 }
 @media (max-width:760px){.deco{display:none}.page{padding-top:28px;gap:24px}.navin{padding-left:16px;padding-right:16px}}
 @media (prefers-reduced-motion:reduce){
-  .bob,.floaty,.wiggle,.caret,.shin .fa,.shin .fb{animation:none!important}.shin .fb{opacity:0}
+  .bob,.floaty,.wiggle,.caret{animation:none!important}
   .walker{transition:none}html{scroll-behavior:auto}}

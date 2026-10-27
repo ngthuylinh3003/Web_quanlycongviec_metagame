@@ -229,68 +229,6 @@ def hoodie():
     return g
 
 
-# ---------- Shin-chan (cậu bé bút chì) ----------
-SHIN = """
-....................
-......K..K..K.......
-....KKKKKKKKKKKK....
-...KKKKKKKKKKKKKK...
-..KKKKKKKKKKKKKKKK..
-..KKSSSSSSSSSSSSKK..
-..KSSSSSSSSSSSSSSK..
-..KSKKKKSSSSKKKKSK..
-..KSSKKSSSSSSKKSSK..
-..KSSKKSSSSSSKKSSK..
-..KSPPSSSSSSSSPPSK..
-..KSSSSSMMMMSSSSSK..
-...KSSSSSMMSSSSSK...
-....KSSSSSSSSSSK....
-.....KKKKKKKKKK.....
-......KRRRRRRK......
-.....KRRRRRRRRK.....
-....SKRRRrrRRRKS....
-....SKRRRRRRRRKS....
-.....KRRRRRRRRK.....
-.....KYYYYYYYYK.....
-.....KYYYYYYYYK.....
-.....KYYYYYYYYK.....
-......KSSKKSSK......
-......KSSKKSSK......
-......KWWKKWWK......
-......KWWKKWWK......
-.....KRRRKKRRRK.....
-.....KKKKKKKKKK.....
-""".strip().split('\n')
-assert all(len(r) == 20 for r in SHIN), [(i, len(r)) for i, r in enumerate(SHIN) if len(r) != 20]
-
-
-def shift(row, d):
-    if d < 0:
-        return row[-d:] + '.' * (-d)
-    if d > 0:
-        return '.' * d + row[:-d]
-    return row
-
-
-def shin_frame(upper, lower):
-    rows = list(SHIN)
-    for r in range(15, 20):
-        rows[r] = shift(rows[r], upper)
-    for r in range(20, 29):
-        rows[r] = shift(rows[r], lower)
-    g = clone(rows)
-    # cây bút chì cầm trên tay phải
-    hand = max(c for c in range(20) if g[17][c] == 'S')
-    c0 = hand + 1
-    if c0 + 1 > 19:
-        c0 = 18
-    spec = {12: 'KK', 13: 'SS', 14: 'Yy', 15: 'Yy', 16: 'Yy', 17: 'Yy', 18: 'ZZ', 19: 'QQ'}
-    for r, pair in spec.items():
-        g[r][c0] = pair[0]
-        g[r][c0 + 1] = pair[1]
-    return g
-
-
 # ---------- Linh theo tâm trạng (dùng bộ hoodie, đổi nét mặt + chi tiết xung quanh) ----------
 def star(g, r, c, ch):
     put(g, r, [c - 1, c, c + 1], ch)
@@ -382,9 +320,7 @@ def main():
         write_png(os.path.join(OUT, 'linh-mood-%s.png' % m), mood(m))
     for name, fn in (('linh-punk', punk), ('linh-kawaii', kawaii), ('linh-denim', denim), ('linh-hoodie', hoodie)):
         write_png(os.path.join(OUT, name + '.png'), fn())
-    write_png(os.path.join(OUT, 'shin-a.png'), shin_frame(1, -1))
-    write_png(os.path.join(OUT, 'shin-b.png'), shin_frame(-1, 1))
-    print('xong:', sorted(f for f in os.listdir(OUT) if f.startswith(('linh-punk', 'linh-kawaii', 'linh-denim', 'linh-hoodie', 'shin'))))
+    print('xong:', sorted(f for f in os.listdir(OUT) if f.startswith(('linh-punk', 'linh-kawaii', 'linh-denim', 'linh-hoodie'))))
 
 
 if __name__ == '__main__':
