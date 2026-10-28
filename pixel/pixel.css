@@ -155,7 +155,7 @@ textarea.cell{resize:vertical;min-height:38px;overflow:hidden}
 .ghead button,.tgroup button.light{min-height:38px;padding:0 14px;border-radius:10px;border:2px solid rgba(255,255,255,.85);background:transparent;color:#fff;font-weight:700}
 .scroll{overflow-x:auto}
 .gt{min-width:1220px;padding-bottom:6px}
-.grow,.gth{display:grid;grid-template-columns:minmax(200px,2fr) minmax(110px,1fr) minmax(110px,1fr) minmax(110px,1fr) minmax(130px,1fr) minmax(240px,2.6fr) 124px;gap:16px;padding:12px 24px;align-items:start}
+.grow,.gth{display:grid;grid-template-columns:minmax(200px,2fr) minmax(110px,1fr) minmax(110px,1fr) minmax(110px,1fr) minmax(130px,1fr) minmax(240px,2.6fr) 208px;gap:16px;padding:12px 24px;align-items:start}
 .gth{background:var(--tint);color:var(--fg);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding-top:12px;padding-bottom:12px}
 .gth span{padding-left:10px}
 .grow{border-top:1px solid var(--soft)}
@@ -164,8 +164,27 @@ textarea.cell{resize:vertical;min-height:38px;overflow:hidden}
 .acts{display:flex;gap:8px}
 
 /* ===== Link & Note team ===== */
-.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px;align-items:start;position:relative;z-index:1}
-.card.span1{grid-column:span 1}.card.span2{grid-column:span 2}.card.span3{grid-column:span 3}.card.span4{grid-column:span 4}
+.cards{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:28px;align-items:start;position:relative;z-index:1}
+.card.w3{grid-column:span 3}.card.w4{grid-column:span 4}.card.w5{grid-column:span 5}.card.w6{grid-column:span 6}.card.w7{grid-column:span 7}
+.card.w8{grid-column:span 8}.card.w9{grid-column:span 9}.card.w10{grid-column:span 10}.card.w11{grid-column:span 11}.card.w12{grid-column:span 12}
+.card.fixh{display:flex;flex-direction:column}
+.card.fixh .cbody{flex:1;min-height:0;overflow:auto}
+.card .rsz{position:absolute;right:0;bottom:0;width:26px;height:26px;cursor:nwse-resize;touch-action:none;background:linear-gradient(135deg,transparent 50%,var(--ink) 50%,var(--ink) 58%,transparent 58%,transparent 70%,var(--ink) 70%,var(--ink) 78%,transparent 78%);border-bottom-right-radius:16px;opacity:.7}
+.card .rsz:hover{opacity:1}
+/* Đổi thứ tự: tay nắm kéo + nút ▲▼ */
+.mv{display:inline-flex;align-items:center;gap:4px;flex:none}
+.grip{width:26px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:2px dashed var(--edge);background:#fff;cursor:grab;font-size:15px;line-height:1;user-select:none;color:var(--ink)}
+.grip:active{cursor:grabbing}
+.mvb{width:28px;height:32px;border-radius:8px;border:2px solid var(--edge);background:#fff;font-size:11px;padding:0;color:var(--ink)}
+.mvb:hover{border-color:var(--ink);background:var(--hover)}
+.item .mv{flex-direction:column;gap:3px;margin-top:2px}
+.item .grip{height:24px}.item .mvb{height:22px;width:26px;font-size:9px}
+.boardbar .mv{margin-right:4px}
+[data-dk].dragging{opacity:.4}
+.drop-before{box-shadow:0 -4px 0 0 var(--gold) !important}
+.drop-after{box-shadow:0 4px 0 0 var(--gold) !important}
+.card.drop-before{box-shadow:-6px 0 0 0 var(--gold),var(--shadow) !important}
+.card.drop-after{box-shadow:6px 0 0 0 var(--gold),var(--shadow) !important}
 .chead{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 20px;background:var(--solid);color:#fff;min-height:56px}
 .chead h2{font-size:19px}
 .chead span{font-size:12px;font-weight:800;white-space:nowrap}
@@ -194,13 +213,14 @@ a.ltitle:hover{color:var(--accent);text-decoration:underline}
 .addboard{min-height:56px;border:2px dashed var(--ink);border-radius:16px;background:transparent;font-weight:800;color:var(--ink)}
 .addboard:hover{background:var(--hover)}
 @media (max-width:1200px){
-  .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .card.span3,.card.span4{grid-column:span 2}
+  .cards{grid-template-columns:repeat(6,minmax(0,1fr))}
+  .card.w3,.card.w4,.card.w5,.card.w6{grid-column:span 3}
+  .card.w7,.card.w8,.card.w9,.card.w10,.card.w11,.card.w12{grid-column:span 6}
   .clist.c3,.clist.c4{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:700px){
   .cards{grid-template-columns:minmax(0,1fr)}
-  .card.span2,.card.span3,.card.span4{grid-column:span 1}
+  .card[class*="w"]{grid-column:span 1}
   .clist.c2,.clist.c3,.clist.c4{grid-template-columns:minmax(0,1fr)}
 }
 
@@ -213,12 +233,30 @@ a.ltitle:hover{color:var(--accent);text-decoration:underline}
 .ncard:nth-child(5n+5){background:var(--purple)}
 .ncard .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .ncard input[type=date]{width:auto;font-weight:800}
-.ntable .in{min-width:640px}
-.nth,.nrow{display:grid;grid-template-columns:200px 1fr 112px;gap:12px;align-items:start;padding:0 20px}
+.ntable .in{min-width:860px}
+.nth,.nrow{display:grid;grid-template-columns:190px minmax(260px,1fr) 230px 112px;gap:12px;align-items:start;padding:0 20px}
 .nth{background:var(--ink);color:#fff;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
 .nth span{padding:12px 10px}
 .nrow{border-top:1px solid var(--soft);padding-top:10px;padding-bottom:10px}
 .nrow input[type=date]{font-weight:800}
+
+/* Ô ghi chú có định dạng chữ */
+.rte{display:block;width:100%;border:2px solid transparent;border-radius:10px;padding:8px 10px;line-height:1.5;min-height:38px;overflow-wrap:anywhere;word-break:break-word}
+.rte ul,.rte ol{margin:4px 0;padding-left:22px}
+.rte.ed{border-color:var(--edge);background:#FFFDF8;cursor:text}
+.rte.ed:hover{border-color:var(--ink)}
+.rte.ed:focus{outline:none;border-color:var(--ink);background:#fff;box-shadow:0 0 0 3px var(--gold)}
+.rte.ed:empty:before{content:attr(data-ph);color:#7A7F94;pointer-events:none}
+.ncard .rte{background:rgba(255,255,255,.55)}
+.ncard .rte.ed{background:#FFFDF8}
+.ncard .cell[data-k=link]{background:rgba(255,255,255,.55)}
+.rtb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 10px;border:2px solid var(--ink);border-radius:12px;background:#fff;box-shadow:var(--btn-shadow);position:sticky;top:96px;z-index:5}
+.rtbtn{min-width:36px;height:34px;border-radius:9px;border:2px solid var(--edge);background:#fff;font-weight:800;padding:0 8px}
+.rtbtn:hover{border-color:var(--ink);background:var(--hover)}
+.rtc{width:30px;height:30px;border-radius:50%;border:2px solid var(--ink);background:#fff;color:var(--c);font-weight:800;font-size:14px;padding:0;line-height:1}
+.rtc.hl{background:var(--c);color:transparent}
+.rtc:hover{transform:scale(1.12)}
+.rtsep{width:2px;height:24px;background:var(--edge);margin:0 4px}
 
 /* ===== Công việc tháng ===== */
 .pnav{display:flex;flex-wrap:wrap;gap:10px;align-items:center;position:relative;z-index:1}
@@ -276,7 +314,7 @@ a.ltitle:hover{color:var(--accent);text-decoration:underline}
 /* ===== Khoảng cách giữa các khối trong một tab ===== */
 #body{display:flex;flex-direction:column;gap:32px}
 /* Mục / ghi chú bị ẩn */
-.item.is-hidden,.ncard.is-hidden,.nrow.is-hidden{opacity:.55}
+.item.is-hidden,.ncard.is-hidden,.nrow.is-hidden{opacity:.55;outline:2px dashed var(--edge);outline-offset:-2px}
 .item .minibtn{min-width:44px;height:32px;padding:0 8px;font-size:12px;margin-top:2px;flex:none}
 .item .tag,.ncard .tag,.nrow .tag{margin:4px 10px 2px}
 .ncard .top .tag{margin:0}
@@ -288,7 +326,10 @@ a.ltitle:hover{color:var(--accent);text-decoration:underline}
 .mhead h2{font-size:20px}
 .mdatebox{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .mdatechip{padding:8px 14px;border-radius:10px;background:var(--soft);font-weight:800;font-size:13.5px}
-.mpick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.mpick{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.mpick .moodbtn{padding:12px 4px;font-size:13px}
+.mdatebox .minibtn{min-width:36px}
+.mdatebox .minibtn:disabled{opacity:.4}
 .moodbtn{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 8px;border-radius:16px;border:2px solid var(--edge);background:#fff;font-weight:800;box-shadow:var(--btn-shadow);transition:transform .12s}
 .moodbtn:hover{transform:translateY(-2px)}
 .moodbtn svg{flex:none}

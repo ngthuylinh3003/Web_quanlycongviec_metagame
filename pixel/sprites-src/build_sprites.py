@@ -18,6 +18,8 @@ PAL = {
     'U': '#8E7CC3', 'u': '#6B5AA6', 'N': '#8DB6E8', 'n': '#5E8FC9', 'J': '#23242E',
     'j': '#44465A', 'Z': '#C4C8D4', 'Q': '#F5A8C8', 'q': '#DD6FA0', 'T': '#33C2B0',
     't': '#1E8F82', 'G': '#7BC47F', 'F': '#F9D6B2',
+    # tóc nhuộm: tím + xám (light và phần gáy tẩy)
+    'V': '#9B6FD6', 'v': '#6B4FA3', 'g': '#A4A9B8', 'h': '#CDD1DC',
 }
 
 BASE = """
@@ -66,6 +68,39 @@ BASE = """
 
 assert all(len(r) == 32 for r in BASE), [len(r) for r in BASE]
 assert len(BASE) == 41
+
+
+def dye(rows):
+    """Tóc mới: light tím + xám ở phần đỉnh/mặt, gáy và đuôi tóc tẩy (xám chuyển tím)."""
+    g = [list(r) for r in rows]
+    # 1) các sợi light xanh cũ -> tím (bỏ qua tròng mắt)
+    for r in range(len(g)):
+        for c in range(len(g[r])):
+            if g[r][c] == 'B' and not (12 <= r <= 13 and 9 <= c <= 22):
+                g[r][c] = 'V'
+    # 2) thêm vài sợi light xám + tím
+    strands = [(3, 15, 'g'), (4, 16, 'g'), (5, 17, 'g'), (6, 18, 'g'), (7, 19, 'g'),
+               (4, 13, 'V'), (5, 12, 'V'),
+               (9, 6, 'g'), (10, 6, 'g'), (11, 6, 'g'), (12, 6, 'g'),
+               (9, 25, 'V'), (10, 25, 'V'), (11, 25, 'V'), (12, 25, 'V'),
+               (13, 25, 'g'), (14, 25, 'g')]
+    for r, c, ch in strands:
+        if g[r][c] == 'b':
+            g[r][c] = ch
+    # 3) gáy / đuôi tóc tẩy: xám rồi chuyển tím ở chóp
+    for r in range(23, 29):
+        for c in list(range(5, 9)) + list(range(23, 27)):
+            if g[r][c] in ('b', 'V'):
+                if r <= 24:
+                    g[r][c] = 'g'
+                elif r <= 26:
+                    g[r][c] = 'h' if c % 2 == 0 else 'g'
+                else:
+                    g[r][c] = 'V' if c % 2 == 0 else 'v'
+    return [''.join(r) for r in g]
+
+
+BASE = dye(BASE)
 
 
 # ---------- công cụ vẽ ----------
@@ -308,14 +343,89 @@ def mood(name):
         put(g, 4, [1], 'N')
         put(g, 5, [3], 'N')
         put(g, 6, [2], 'N')
+    elif name == 'excited':    # hứng khởi: mắt vàng lấp lánh, miệng há to, sao bay
+        clear_eyes(g)
+        put(g, 12, [11, 12, 19, 20], 'Y')
+        put(g, 13, [11, 12, 19, 20], 'Y')
+        put(g, 12, [11, 19], 'W')
+        put(g, 15, [15, 16], 'S')
+        put(g, 15, [14, 15, 16, 17], 'M')
+        put(g, 16, [14, 15, 16, 17], 'M')
+        put(g, 16, [15, 16], 'R')
+        star(g, 5, 2, 'Y')
+        star(g, 9, 29, 'Q')
+        star(g, 3, 29, 'Y')
+    elif name == 'love':       # yêu đời: mắt trái tim, cười tủm, tim bay
+        clear_eyes(g)
+        for c0 in (10, 19):
+            put(g, 11, [c0, c0 + 2], 'R')
+            put(g, 12, [c0, c0 + 1, c0 + 2], 'R')
+            put(g, 13, [c0 + 1], 'R')
+        put(g, 15, [15, 16], 'S')
+        put(g, 15, [14, 17], 'M')
+        put(g, 16, [15, 16], 'M')
+        put(g, 4, [28, 30], 'Q')
+        put(g, 5, [28, 29, 30], 'Q')
+        put(g, 6, [29], 'Q')
+        put(g, 9, [1, 3], 'Q')
+        put(g, 10, [1, 2, 3], 'Q')
+        put(g, 11, [2], 'Q')
+    elif name == 'cool':       # ngầu: kính râm, cười nhếch
+        clear_eyes(g)
+        fill(g, 12, 9, 22, 'E')
+        put(g, 13, [10, 11, 12, 13, 18, 19, 20, 21], 'E')
+        put(g, 12, [10, 18], 'j')
+        put(g, 15, [15, 16], 'S')
+        put(g, 15, [16, 17], 'M')
+        put(g, 16, [18], 'M')
+        star(g, 6, 29, 'Z')
+    elif name == 'focus':      # tập trung: đeo kính tròn, mắt nghiêm túc
+        fill(g, 11, 9, 13, 'K')
+        fill(g, 14, 9, 13, 'K')
+        put(g, 12, [9, 13], 'K')
+        put(g, 13, [9, 13], 'K')
+        fill(g, 11, 18, 22, 'K')
+        fill(g, 14, 18, 22, 'K')
+        put(g, 12, [18, 22], 'K')
+        put(g, 13, [18, 22], 'K')
+        fill(g, 12, 14, 17, 'K')
+        put(g, 15, [15, 16], 'S')
+        put(g, 15, [15, 16], 'M')
+        for r in (1, 2, 3, 4):
+            put(g, r, [28, 29], 'N')
+        put(g, 6, [28, 29], 'N')
+    elif name == 'silly':      # hài hước: nháy mắt + lè lưỡi
+        put(g, 12, [19, 20], 'S')
+        put(g, 13, [19, 20], 'E')
+        put(g, 15, [15, 16], 'S')
+        put(g, 15, [14, 15, 16, 17], 'M')
+        put(g, 16, [15, 16], 'q')
+        put(g, 17, [16], 'q')
+        star(g, 6, 2, 'Q')
+        star(g, 8, 29, 'Y')
+    elif name == 'confused':   # hoang mang: mắt xoáy, miệng nhăn, dấu hỏi
+        put(g, 12, [19, 20], 'E')
+        put(g, 13, [19], 'E')
+        put(g, 13, [20], 'w')
+        put(g, 15, [15, 16], 'S')
+        put(g, 15, [14, 16], 'M')
+        put(g, 16, [15, 17], 'M')
+        put(g, 1, [28, 29], 'N')
+        put(g, 2, [27, 30], 'N')
+        put(g, 3, [30], 'N')
+        put(g, 4, [29], 'N')
+        put(g, 5, [28], 'N')
+        put(g, 7, [28], 'N')
     return g
 
 
-MOODS = ['happy', 'chill', 'busy', 'tired', 'stress', 'sad']
+MOODS = ['happy', 'excited', 'love', 'cool', 'chill', 'focus', 'silly', 'busy', 'tired', 'stress', 'sad', 'confused']
 
 
 def main():
     os.makedirs(OUT, exist_ok=True)
+    # ảnh đại diện: đầu + vai, đã nhuộm tóc
+    write_png(os.path.join(OUT, 'linh-head.png'), [row[3:29] for row in BASE[0:22]])
     for m in MOODS:
         write_png(os.path.join(OUT, 'linh-mood-%s.png' % m), mood(m))
     for name, fn in (('linh-punk', punk), ('linh-kawaii', kawaii), ('linh-denim', denim), ('linh-hoodie', hoodie)):

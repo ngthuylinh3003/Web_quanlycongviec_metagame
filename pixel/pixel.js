@@ -20,7 +20,9 @@
     gold: { solid: '#B7791F', tint: '#FCEBC7', fg: '#7A4F0B' }
   };
   var BOARD_COLORS = [['ink', 'Đen'], ['NovaS', 'Tím'], ['MetaX', 'Xanh dương'], ['HiCat', 'Cam'], ['Somia', 'Xanh ngọc'], ['rose', 'Hồng'], ['green', 'Xanh lá'], ['gold', 'Vàng'], ['Khác', 'Xám']];
-  var BOARD_SIZES = [[1, 'Nhỏ (1/4 hàng)'], [2, 'Vừa (1/2 hàng)'], [3, 'Lớn (3/4 hàng)'], [4, 'Rộng (cả hàng)']];
+  var BOARD_SIZES = [[3, 'Nhỏ (1/4 hàng)'], [4, 'Gọn (1/3 hàng)'], [6, 'Vừa (1/2 hàng)'], [8, 'Rộng (2/3 hàng)'], [9, 'Lớn (3/4 hàng)'], [12, 'Cả hàng']];
+  var BOARD_HEIGHTS = [[0, 'Tự động'], [220, 'Thấp'], [320, 'Vừa'], [440, 'Cao'], [600, 'Rất cao'], [800, 'Dài']];
+  var RT_COLORS = [['#C0392B', 'Đỏ'], ['#D9822B', 'Cam'], ['#2E8B57', 'Xanh lá'], ['#2F6FDE', 'Xanh dương'], ['#7B4FC9', 'Tím'], ['#6B7280', 'Xám']];
   var AUTO = ['rose', 'green', 'gold', 'Somia', 'NovaS', 'MetaX', 'HiCat'];
   var ORDER = ['NovaS', 'MetaX', 'HiCat', 'Somia', 'Khác'];
   var LINK_TEAMS = ['NovaS', 'MetaX', 'HiCat', 'Somia'];
@@ -35,49 +37,79 @@
   var TAB_IDX = { games: 0, teams: 1, notes: 2, mood: 3 };
   var OUTFIT = { games: 'linh-punk.png', teams: 'linh-kawaii.png', notes: 'linh-denim.png', mood: 'linh-hoodie.png', tasks: 'linh-hoodie.png' };
   var STAGE = { games: 'STAGE 01', teams: 'STAGE 02', notes: 'STAGE 03', mood: 'STAGE 04', tasks: 'STAGE 05' };
-  var V = '?v=3';
+  var V = '?v=4';
 
   /* ----- Nhật ký cảm xúc ----- */
   var MOODS = [
     { id: 'happy', label: 'Vui', color: '#F2B84B', fg: '#1E2238' },
+    { id: 'excited', label: 'Hứng khởi', color: '#FF9EC4', fg: '#1E2238' },
+    { id: 'love', label: 'Yêu đời', color: '#D9A6F2', fg: '#1E2238' },
+    { id: 'cool', label: 'Ngầu', color: '#5BC0EB', fg: '#1E2238' },
     { id: 'chill', label: 'Bình yên', color: '#7BC47F', fg: '#1E2238' },
+    { id: 'focus', label: 'Tập trung', color: '#3FB6A8', fg: '#1E2238' },
+    { id: 'silly', label: 'Hài hước', color: '#C6E24A', fg: '#1E2238' },
     { id: 'busy', label: 'Ngập việc', color: '#F5A25D', fg: '#1E2238' },
     { id: 'tired', label: 'Mệt', color: '#B9A7E8', fg: '#1E2238' },
     { id: 'stress', label: 'Căng thẳng', color: '#C9344B', fg: '#FFFFFF' },
-    { id: 'sad', label: 'Buồn', color: '#8DB6E8', fg: '#1E2238' }
+    { id: 'sad', label: 'Buồn', color: '#8DB6E8', fg: '#1E2238' },
+    { id: 'confused', label: 'Hoang mang', color: '#D8C3A5', fg: '#1E2238' }
   ];
   var FACES = {
     happy: ['..KKKKK..', '.KYYYYYK.', 'KYYYYYYYK', 'KYKYYYKYK', 'KYYYYYYYK', 'KYKYYYKYK', 'KYYKKKYYK', '.KYYYYYK.', '..KKKKK..'],
+    excited: ['..KKKKK..', '.KYYYYYK.', 'KYWYYYWYK', 'KYKYYYKYK', 'KYYYYYYYK', 'KYKKKKKYK', 'KYYKRKYYK', '.KYYYYYK.', '..KKKKK..'],
+    love: ['..KKKKK..', '.KYYYYYK.', 'KYYYYYYYK', 'KRYRYRYRK', 'KYRYYYRYK', 'KYYYYYYYK', 'KYYKKKYYK', '.KYYYYYK.', '..KKKKK..'],
+    cool: ['..KKKKK..', '.KYYYYYK.', 'KYYYYYYYK', 'KYKKKKKYK', 'KYKKYKKYK', 'KYYYYYYYK', 'KYYYKKYYK', '.KYYYYYK.', '..KKKKK..'],
     chill: ['..KKKKK..', '.KYYYYYK.', 'KYYYYYYYK', 'KYKYYYKYK', 'KYPYYYPYK', 'KYYYYYYYK', 'KYYKKKYYK', '.KYYYYYK.', '..KKKKK..'],
+    focus: ['..KKKKK..', '.KYYYYYK.', 'KYYYYYYYK', 'KKKKYKKKK', 'KKWKYKWKK', 'KKKKYKKKK', 'KYYKKKYYK', '.KYYYYYK.', '..KKKKK..'],
+    silly: ['..KKKKK..', '.KYYYYYK.', 'KYYYYYYYK', 'KYKYYYKKK', 'KYYYYYYYK', 'KYYKKKYYK', 'KYYYRYYYK', '.KYYYYYK.', '..KKKKK..'],
     busy: ['..KKKKK..', '.KYYYYYK.', 'KYYYYYYNK', 'KYKYYYKNK', 'KYKYYYKYK', 'KYYYKYYYK', 'KYYKYKYYK', '.KYYYYYK.', '..KKKKK..'],
     tired: ['..KKKKK..', '.KYYYYYK.', 'KYYYYYYYK', 'KYYYYYYYK', 'KYKKYKKYK', 'KYuuYuuYK', 'KYYYKYYYK', '.KYYYYYK.', '..KKKKK..'],
     stress: ['..KKKKK..', '.KYYYYYK.', 'KYYYYYYYK', 'KYKKYKKYK', 'KYYYYYYYK', 'KYYKKKYYK', 'KYKYYYKYK', '.KYYYYYK.', '..KKKKK..'],
-    sad: ['..KKKKK..', '.KYYYYYK.', 'KYYYYYYYK', 'KYKYYYKYK', 'KYNYYYNYK', 'KYYKKKYYK', 'KYKYYYKYK', '.KYYYYYK.', '..KKKKK..']
+    sad: ['..KKKKK..', '.KYYYYYK.', 'KYYYYYYYK', 'KYKYYYKYK', 'KYNYYYNYK', 'KYYKKKYYK', 'KYKYYYKYK', '.KYYYYYK.', '..KKKKK..'],
+    confused: ['..KKKKK..', '.KYYYYYK.', 'KYYYYYYYK', 'KYKYYYKYK', 'KYYYYYKYK', 'KYYYYYYYK', 'KYYKKYYYK', '.KYYYYYK.', '..KKKKK..']
   };
   var MOOD_ECHO = {
     happy: 'Wow, vui ghê! Kể mình nghe thêm đi!',
+    excited: 'Woah, hứng khởi dữ vậy! Có chuyện gì vui hả?',
+    love: 'Yêu đời quá đi! Kể mình nghe với!',
+    cool: 'Ngầu lắm luôn! Hôm nay bạn làm gì mà ngầu vậy?',
     chill: 'Bình yên là tuyệt nhất. Hôm nay có gì nhẹ nhàng nè?',
+    focus: 'Đang vào guồng hả? Cố lên, mình ngồi cạnh nè!',
+    silly: 'Hihi, hôm nay lầy lội hả? Kể mình nghe!',
     busy: 'Ôi, nhiều việc hả? Kể mình nghe, mình nghe nè!',
     tired: 'Mệt rồi hả? Viết ra cho nhẹ lòng nhé.',
     stress: 'Hít sâu nào. Chuyện gì làm bạn căng thẳng vậy?',
-    sad: 'Mình ở đây nè. Bạn muốn kể gì không?'
+    sad: 'Mình ở đây nè. Bạn muốn kể gì không?',
+    confused: 'Hoang mang hả? Cứ viết hết ra, mình cùng gỡ rối.'
   };
   var MOOD_PROMPTS = {
     happy: ['Hôm nay vui ghê, mọi thứ đều suôn sẻ!', 'Làm xong một việc khó, sảng khoái quá!', 'Today feels like a good day!'],
+    excited: ['Hôm nay hứng khởi cực kỳ, làm gì cũng thích!', 'Có ý tưởng mới, mình muốn thử ngay!', 'Feeling pumped today!'],
+    love: ['Yêu đời lắm, mọi thứ đều xinh!', 'Hôm nay được khen, vui như Tết.', 'Feeling grateful today.'],
+    cool: ['Hôm nay ngầu lòi, xử lý việc gọn ghẽ!', 'Mọi thứ trong tầm tay, easy!', 'Cool, calm and productive.'],
     chill: ['Hôm nay nhẹ nhàng, làm việc từ từ thôi.', 'Một ngày yên bình, cà phê ngon.', 'Slow and steady, mình ổn lắm.'],
+    focus: ['Hôm nay tập trung cao độ, chạy deadline vèo vèo.', 'Vào flow rồi, đừng ai làm phiền!', 'In the zone.'],
+    silly: ['Hôm nay hơi lầy, cười cả ngày.', 'Pha trò cho team vui, thành công mỹ mãn!', 'Just being silly today.'],
     busy: ['Ôi, nay nhiều việc quá trời!', 'Task cứ ập đến liên tục, chạy deadline thôi.', 'So many tasks, so little time!'],
     tired: ['Hơi mệt rồi, cần một giấc ngủ ngon.', 'Đầu óc lờ đờ, uống thêm cà phê nữa.', 'Low battery. Cần sạc pin!'],
     stress: ['Hôm nay hơi căng, số liệu cứ lệch hoài.', 'Có chút bực, hít thở sâu nào.', 'Deadline đang đuổi theo mình...'],
-    sad: ['Hôm nay hơi buồn, không rõ vì sao.', 'Mong ngày mai tốt hơn.', 'Hơi chạnh lòng một chút thôi.']
+    sad: ['Hôm nay hơi buồn, không rõ vì sao.', 'Mong ngày mai tốt hơn.', 'Hơi chạnh lòng một chút thôi.'],
+    confused: ['Hôm nay hơi rối, chưa biết bắt đầu từ đâu.', 'Số liệu lạ quá, mình cần suy nghĩ thêm.', 'Wait, what just happened?']
   };
-  var ENERGY_RANGE = { happy: [4, 5], chill: [3, 4], busy: [3, 5], tired: [1, 2], stress: [2, 3], sad: [1, 2] };
+  var ENERGY_RANGE = { happy: [4, 5], excited: [4, 5], love: [4, 5], cool: [4, 5], chill: [3, 4], focus: [3, 5], silly: [3, 5], busy: [3, 5], tired: [1, 2], stress: [2, 3], sad: [1, 2], confused: [2, 3] };
   var MOOD_SUM = {
     happy: 'Bạn vui nhiều lắm! Giữ năng lượng này nhé.',
+    excited: 'Bạn hứng khởi nhiều lắm, tận dụng nhé!',
+    love: 'Bạn đang yêu đời lắm, lan tỏa nhé!',
+    cool: 'Ngầu thật, cứ giữ phong độ nhé!',
     chill: 'Những ngày bình yên thật quý. Cứ thong thả nhé.',
+    focus: 'Bạn tập trung tốt, nhớ nghỉ giữa giờ nhé!',
+    silly: 'Nhiều ngày lầy lội, vui lắm!',
     busy: 'Ngập việc nhiều quá, nhớ nghỉ ngơi và uống nước nhé!',
     tired: 'Bạn mệt khá nhiều rồi, hãy ngủ đủ giấc và tự thưởng chút gì đó.',
     stress: 'Căng thẳng hơi nhiều, thử chia nhỏ việc và hít thở sâu nhé.',
-    sad: 'Mấy hôm nay hơi buồn, nếu cần thì tâm sự với người thân nhé.'
+    sad: 'Mấy hôm nay hơi buồn, nếu cần thì tâm sự với người thân nhé.',
+    confused: 'Hơi hoang mang nhiều, thử viết ra từng việc rồi hỏi đồng nghiệp nhé.'
   };
   var ENERGY_TXT = ['', 'Cạn pin', 'Hơi thấp', 'Vừa vừa', 'Khá tốt', 'Tràn đầy'];
   var THU = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
@@ -147,7 +179,7 @@
 
   /* ================= Trạng thái ================= */
   var KEY = null, FILE = null, S = null;
-  var ui = { view: 'games', editing: false, saved: false, trash: [], team: 'all', q: '', showHidden: false, showHiddenItems: false, showHiddenNotes: false,
+  var ui = { view: 'games', editing: false, saved: false, trash: [], team: 'all', q: '', delMoods: {},
     notesMode: 'cards', notesSort: 'desc', period: '', taskTeam: 'all', imp: null, toast: '', toastType: 'info' };
   var prevTab = null, sceneKey = '', typer = null, cheerIdx = null;
 
@@ -242,9 +274,14 @@
     s.tables = (s.tables && !Array.isArray(s.tables)) ? s.tables : {};
     ['chung'].concat(LINK_TEAMS).forEach(function (k) { s.teamItems[k] = s.teamItems[k] || []; });
     if (!Array.isArray(s.boards) || !s.boards.length) {
-      s.boards = [{ id: 'chung', name: 'Link chung', color: 'ink', cols: 4 }].concat(LINK_TEAMS.map(function (k) { return { id: k, name: k, color: k, cols: 1 }; }));
+      s.boards = [{ id: 'chung', name: 'Link chung', color: 'ink', w: 12, h: 0 }].concat(LINK_TEAMS.map(function (k) { return { id: k, name: k, color: k, w: 3, h: 0 }; }));
     }
-    s.boards.forEach(function (b) { s.teamItems[b.id] = s.teamItems[b.id] || []; b.cols = Math.min(4, Math.max(1, +b.cols || 1)); });
+    s.boards.forEach(function (b) {
+      s.teamItems[b.id] = s.teamItems[b.id] || [];
+      if (b.w == null) b.w = (Math.min(4, Math.max(1, +b.cols || 1))) * 3;
+      b.w = Math.min(12, Math.max(3, Math.round(+b.w) || 3)); b.h = Math.max(0, Math.round(+b.h) || 0);
+      delete b.cols;
+    });
     s.groups = (s.groups && typeof s.groups === 'object') ? s.groups : {};
     Object.keys(s.tables).forEach(function (pid) {
       var g = s.groups[pid] = s.groups[pid] || [];
@@ -278,10 +315,37 @@
     for (var i = s.length - 1; i >= 0; i--) if (S.tables[s[i].id]) return s[i].id;
     return s.length ? s[s.length - 1].id : '';
   }
+  /* Gộp nhật ký cảm xúc: giữ mọi ngày đã ghi, ngày trùng thì bản mới hơn (ts) thắng */
+  function mergeMoodList(src) {
+    var changed = false;
+    (src || []).forEach(function (m) {
+      if (ui.delMoods[m.date]) return;
+      var ex = findMood(m.date);
+      if (!ex) { S.moods.push({ id: nid(), date: m.date, mood: m.mood, energy: m.energy, text: m.text || '', ts: m.ts || 0 }); changed = true; }
+      else if ((m.ts || 0) > (ex.ts || 0)) { ex.mood = m.mood; ex.energy = m.energy; ex.text = m.text || ''; ex.ts = m.ts; changed = true; }
+    });
+    return changed;
+  }
+  /* Mở bản lưu cũ trên trình duyệt: khoá hiện tại, hoặc (khi file dữ liệu đã đổi muối) khoá cũ tính lại từ mật khẩu vừa nhập */
+  var cred = null;
+  async function oldState(rec) {
+    if (!rec) return null;
+    try { return ensure(await C.decryptJSON(KEY, rec)); } catch (e) {}
+    if (cred && rec.salt) {
+      try { return ensure(await C.decryptJSON(await C.deriveKey(cred.u, cred.p, C.fromB64(rec.salt), rec.iter || C.ITER, false), rec)); } catch (e) {}
+    }
+    return null;
+  }
+  async function mergeStoredMoods() {
+    var local = null;
+    try { local = JSON.parse(localStorage.getItem('wh_state') || 'null'); } catch (e) {}
+    if (!local) return;
+    try { mergeMoodList(ensure(await C.decryptJSON(KEY, local)).moods); } catch (e) {}
+  }
   async function persist() {
     try {
       var p = await C.encryptJSON(KEY, S);
-      localStorage.setItem('wh_state', JSON.stringify({ base: FILE.ct.slice(0, 24), iv: p.iv, ct: p.ct }));
+      localStorage.setItem('wh_state', JSON.stringify({ base: FILE.ct.slice(0, 24), salt: FILE.salt, iter: FILE.iter, iv: p.iv, ct: p.ct }));
       return true;
     } catch (e) { return false; }
   }
@@ -329,7 +393,15 @@
       var r = await C.openFile(FILE, user, pass, true);
       KEY = r.key;
       try { sessionStorage.setItem('wh_key', await C.exportKey(KEY)); } catch (e) {}
+      cred = { u: user, p: pass };
       await start(r.data);
+      var prev = null;
+      try { prev = JSON.parse(localStorage.getItem('wh_state_prev') || 'null'); } catch (e2) {}
+      if (prev) {
+        var po = await oldState(prev);
+        if (po) { if (mergeMoodList(po.moods)) { await persist(); render(); } try { localStorage.removeItem('wh_state_prev'); } catch (e3) {} }
+      }
+      cred = null;
     } catch (e) {
       await sleep(700);
       showLogin('Sai tên đăng nhập hoặc mật khẩu.');
@@ -342,8 +414,14 @@
     if (local && local.base === base) { try { S = ensure(await C.decryptJSON(KEY, local)); } catch (e) { S = null; } }
     if (!S) {
       S = ensure(fileData.v ? fileData : buildState(fileData));
-      if (local && local.base !== base) { ui.toast = 'Đã nạp dữ liệu mới từ web (bản chỉnh sửa cũ trên trình duyệt này đã được thay).'; ui.toastType = 'info'; }
+      if (local && local.base !== base) {
+        var old = await oldState(local), kept = false;
+        if (old) { kept = mergeMoodList(old.moods); if (kept) await persist(); }
+        else { try { localStorage.setItem('wh_state_prev', JSON.stringify(local)); } catch (e) {} }
+        ui.toast = 'Đã nạp dữ liệu mới từ web (chỉnh sửa cũ trên trình duyệt này đã được thay' + (kept ? ', nhưng nhật ký cảm xúc các ngày trước vẫn được giữ lại)' : ')') + '.'; ui.toastType = 'info';
+      }
     }
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
     ui.period = latestPeriodId();
     var h = location.hash.replace('#', '');
     ui.view = VIEWS.some(function (v) { return v[0] === h; }) ? h : 'games';
@@ -371,6 +449,35 @@
     return '<select class="sel" aria-label="' + esc(o.label) + '" style="background:' + st.bg + ';color:' + st.fg +
       '" data-c="' + o.c + '" data-id="' + o.id + '" data-k="' + o.k + '">' +
       opts.map(function (v) { return '<option value="' + esc(v) + '"' + (v === cur ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join('') + '</select>';
+  }
+  /* Kéo thả / nút ▲▼ để đổi thứ tự (chỉ khi đang chỉnh sửa) */
+  function dattr(kind, id, grp) { return ' data-dk="' + kind + '" data-did="' + esc(id) + '"' + (grp ? ' data-dgrp="' + esc(grp) + '"' : ''); }
+  function mv(kind, id, grp) {
+    var b = ' data-act="move" data-dk="' + kind + '" data-id="' + esc(id) + '"' + (grp ? ' data-grp="' + esc(grp) + '"' : '');
+    return '<span class="mv"><span class="grip" title="Kéo để đổi vị trí" aria-hidden="true">⠿</span>' +
+      '<button type="button" class="mvb"' + b + ' data-dir="-1" aria-label="Chuyển lên">▲</button>' +
+      '<button type="button" class="mvb"' + b + ' data-dir="1" aria-label="Chuyển xuống">▼</button></span>';
+  }
+  function dlist(kind, grp) { return kind === 'game' ? S.games : kind === 'titem' ? S.teamItems[grp] : kind === 'board' ? S.boards : null; }
+  function dfind(list, id) {
+    for (var i = 0; i < list.length; i++) if (String(list[i].id) === String(id)) return i;
+    return -1;
+  }
+  function stepItem(kind, grp, id, dir) {
+    var list = dlist(kind, grp), i = list ? dfind(list, id) : -1;
+    if (i < 0) return;
+    var j = i + dir;
+    while (kind === 'game' && j >= 0 && j < list.length && list[j].team !== list[i].team) j += dir;
+    if (j < 0 || j >= list.length) return;
+    var t = list[i]; list[i] = list[j]; list[j] = t;
+  }
+  function moveItem(kind, grp, id, tid, after) {
+    var list = dlist(kind, grp), i = list ? dfind(list, id) : -1;
+    if (i < 0 || String(id) === String(tid)) return false;
+    var it = list.splice(i, 1)[0], j = dfind(list, tid);
+    if (j < 0) { list.splice(i, 0, it); return false; }
+    list.splice(after ? j + 1 : j, 0, it);
+    return true;
   }
   function banners(extra) {
     var h = '';
@@ -538,25 +645,17 @@
   function toolsHtml() {
     var v = ui.view;
     if (v === 'games') {
-      var hidden = S.games.filter(function (g) { return g.hidden; }).length;
       var t = ui.team === 'all' ? 'NovaS' : ui.team;
       var add = ui.editing ? '<button type="button" class="mini" data-act="add-game" data-team="' + esc(t) + '">+ Thêm game (' + esc(t) + ')</button>' : '';
-      return '<div class="tools">' + searchBox('Tìm game, note…') +
-        '<button type="button" class="btn ' + (ui.showHidden ? 'on' : '') + '" data-act="toggle-hidden" aria-pressed="' + ui.showHidden + '">Game ẩn · ' + hidden + '</button></div>' + banners(add);
+      return '<div class="tools">' + searchBox('Tìm game, note…') + '</div>' + banners(add);
     }
-    if (v === 'teams') {
-      var hiItems = 0;
-      S.boards.forEach(function (b) { (S.teamItems[b.id] || []).forEach(function (x) { if (x.hidden) hiItems++; }); });
-      return '<div class="tools">' + searchBox('Tìm link, note…') +
-        '<button type="button" class="btn ' + (ui.showHiddenItems ? 'on' : '') + '" data-act="toggle-hidden-items" aria-pressed="' + ui.showHiddenItems + '">Mục ẩn · ' + hiItems + '</button></div>' + banners('');
-    }
+    if (v === 'teams') return '<div class="tools">' + searchBox('Tìm link, note…') + '</div>' + banners('');
     if (v === 'notes') {
       var addN = ui.editing ? '<button type="button" class="mini" data-act="note-add">+ Thêm ghi chú</button>' : '';
       return '<div class="tools">' + searchBox('Tìm ghi chú…') +
         '<div class="seg" role="group" aria-label="Kiểu hiển thị"><button type="button" class="' + (ui.notesMode === 'cards' ? 'on' : '') + '" data-act="notes-mode" data-mode="cards" aria-pressed="' + (ui.notesMode === 'cards') + '">Thẻ</button>' +
         '<button type="button" class="' + (ui.notesMode === 'table' ? 'on' : '') + '" data-act="notes-mode" data-mode="table" aria-pressed="' + (ui.notesMode === 'table') + '">Bảng</button></div>' +
-        '<button type="button" class="btn" data-act="notes-sort">Sắp xếp theo ngày: ' + (ui.notesSort === 'desc' ? 'mới nhất trước ↓' : 'cũ nhất trước ↑') + '</button>' +
-        '<button type="button" class="btn ' + (ui.showHiddenNotes ? 'on' : '') + '" data-act="toggle-hidden-notes" aria-pressed="' + ui.showHiddenNotes + '">Ghi chú ẩn · ' + S.notes.filter(function (n) { return n.hidden; }).length + '</button></div>' + banners(addN);
+        '<button type="button" class="btn" data-act="notes-sort">Sắp xếp theo ngày: ' + (ui.notesSort === 'desc' ? 'mới nhất trước ↓' : 'cũ nhất trước ↑') + '</button></div>' + (ui.editing ? richToolbar() : '') + banners(addN);
     }
     if (v === 'mood') return banners('');
     return '<div class="tools"><button type="button" class="btn" data-act="new-table">+ Tạo bảng mới</button>' +
@@ -574,7 +673,7 @@
   function gamesBody() {
     var q = ui.q.toLowerCase(), vis = visibleGames();
     function match(g) {
-      if (g.hidden && !ui.showHidden) return false;
+      if (g.hidden && !ui.editing) return false;
       return !q || (g.name + ' ' + g.sub + ' ' + g.note).toLowerCase().indexOf(q) >= 0;
     }
     var eb = vis.filter(function (g) { return g.src === 'event_base'; }).length;
@@ -607,13 +706,13 @@
       : '<span class="badge" style="background:' + r.bg + ';color:' + r.fg + '">' + esc(g.src) + '</span>';
     var stCell = ed ? sel({ c: 'game', id: g.id, k: 'status', label: 'Trạng thái game' }, ['Game mới', 'Đã chạy lâu', 'Duy trì'], g.status, s)
       : '<span class="badge" style="background:' + s.bg + ';color:' + s.fg + '">' + esc(g.status) + '</span>';
-    return '<div class="grow ' + (g.hidden ? 'is-hidden' : '') + '"><div>' +
+    return '<div class="grow ' + (g.hidden ? 'is-hidden' : '') + '"' + (ed ? dattr('game', g.id, g.team) : '') + '><div>' +
       fld({ c: 'game', id: g.id, k: 'name', val: g.name, cls: 'strong', ph: 'Tên game', label: 'Tên game' }) +
       ((ed || g.sub) ? fld({ c: 'game', id: g.id, k: 'sub', val: g.sub, cls: 'subtle', ph: 'Tên phụ / store name', label: 'Tên phụ' }) : '') +
       (g.hidden ? '<span class="tag">Đã ẩn</span>' : '') + '</div>' +
       '<div class="cc">' + linkCell + '</div><div class="cc">' + storeCell + '</div><div class="cc">' + srcCell + '</div><div class="cc">' + stCell + '</div>' +
       fld({ c: 'game', id: g.id, k: 'note', val: g.note, area: 1, ph: 'Thêm note…', label: 'Note' }) +
-      '<div class="acts">' + (ed ? '<button type="button" class="minibtn" data-act="hide-game" data-id="' + g.id + '">' + (g.hidden ? 'Hiện' : 'Ẩn') + '</button>' +
+      '<div class="acts">' + (ed ? mv('game', g.id, g.team) + '<button type="button" class="minibtn" data-act="hide-game" data-id="' + g.id + '">' + (g.hidden ? 'Hiện' : 'Ẩn') + '</button>' +
         '<button type="button" class="del" data-act="del-game" data-id="' + g.id + '" aria-label="Xoá dòng">' + TRASH + '</button>' : '') + '</div></div>';
   }
 
@@ -623,24 +722,30 @@
     var cards = S.boards.map(function (b) {
       var c = PAL[b.color] || PAL.ink;
       var list = S.teamItems[b.id] || [];
-      var shown = list.filter(function (x) { return (!x.hidden || ui.showHiddenItems) && (!q || (x.title + ' ' + x.url + ' ' + x.text).toLowerCase().indexOf(q) >= 0); });
+      var shown = list.filter(function (x) { return (!x.hidden || ui.editing) && (!q || (x.title + ' ' + x.url + ' ' + x.text).toLowerCase().indexOf(q) >= 0); });
       var vis = list.filter(function (x) { return !x.hidden; });
       var nl = vis.filter(function (x) { return x.kind === 'link'; }).length;
       var head = ui.editing
         ? '<div class="chead"><input spellcheck="false" aria-label="Tên nhóm" value="' + esc(b.name) + '" placeholder="Tên nhóm" data-c="board" data-bid="' + esc(b.id) + '" data-k="name"></div>' +
-          '<div class="boardbar"><label>Kích thước<select class="sizesel" data-c="board" data-bid="' + esc(b.id) + '" data-k="cols">' +
-          BOARD_SIZES.map(function (s) { return '<option value="' + s[0] + '"' + (s[0] === b.cols ? ' selected' : '') + '>' + s[1] + '</option>'; }).join('') + '</select></label>' +
+          '<div class="boardbar">' + mv('board', b.id) + '<label>Rộng<select class="sizesel" data-c="board" data-bid="' + esc(b.id) + '" data-k="w">' +
+          BOARD_SIZES.map(function (s) { return '<option value="' + s[0] + '"' + (s[0] === b.w ? ' selected' : '') + '>' + s[1] + '</option>'; }).join('') +
+          (BOARD_SIZES.some(function (s) { return s[0] === b.w; }) ? '' : '<option value="' + b.w + '" selected>Tuỳ chỉnh</option>') + '</select></label>' +
+          '<label>Cao<select class="sizesel" data-c="board" data-bid="' + esc(b.id) + '" data-k="h">' +
+          BOARD_HEIGHTS.map(function (s) { return '<option value="' + s[0] + '"' + (s[0] === b.h ? ' selected' : '') + '>' + s[1] + '</option>'; }).join('') +
+          (BOARD_HEIGHTS.some(function (s) { return s[0] === b.h; }) ? '' : '<option value="' + b.h + '" selected>Tuỳ chỉnh</option>') + '</select></label>' +
           '<label>Màu<select class="sizesel" data-c="board" data-bid="' + esc(b.id) + '" data-k="color">' +
           BOARD_COLORS.map(function (s) { return '<option value="' + s[0] + '"' + (s[0] === b.color ? ' selected' : '') + '>' + s[1] + '</option>'; }).join('') + '</select></label>' +
           '<button type="button" class="del" data-act="board-del" data-bid="' + esc(b.id) + '" aria-label="Xoá nhóm" style="margin-left:auto">' + TRASH + '</button></div>'
         : '<div class="chead"><h2>' + esc(b.name) + '</h2><span>' + nl + ' link · ' + (vis.length - nl) + ' note</span></div>';
-      return '<section class="card span' + b.cols + '" style="' + cvars(c) + '" aria-label="' + esc(b.name) + '">' + head +
-        '<div class="clist c' + b.cols + '">' + shown.map(function (x) { return titem(b.id, x); }).join('') + '</div>' +
-        (shown.length ? '' : '<div class="empty">Chưa có mục nào.</div>') +
-        (ui.editing ? '<div class="cfoot"><button type="button" data-act="titem-add" data-grp="' + esc(b.id) + '" data-kind="link">+ Link</button><button type="button" data-act="titem-add" data-grp="' + esc(b.id) + '" data-kind="note">+ Note</button></div>' : '') +
+      var ic = b.w <= 4 ? 1 : b.w <= 8 ? 2 : b.w <= 10 ? 3 : 4;
+      return '<section class="card w' + b.w + (b.h ? ' fixh' : '') + '" style="' + cvars(c) + (b.h ? ';height:' + b.h + 'px' : '') + '" aria-label="' + esc(b.name) + '"' + (ui.editing ? dattr('board', b.id) : '') + ' data-bw="' + b.w + '">' + head +
+        '<div class="cbody"><div class="clist c' + ic + '">' + shown.map(function (x) { return titem(b.id, x); }).join('') + '</div>' +
+        (shown.length ? '' : '<div class="empty">Chưa có mục nào.</div>') + '</div>' +
+        (ui.editing ? '<div class="cfoot"><button type="button" data-act="titem-add" data-grp="' + esc(b.id) + '" data-kind="link">+ Link</button><button type="button" data-act="titem-add" data-grp="' + esc(b.id) + '" data-kind="note">+ Note</button></div>' +
+          '<span class="rsz" data-bid="' + esc(b.id) + '" title="Kéo để đổi kích thước bảng" aria-hidden="true"></span>' : '') +
         '</section>';
     }).join('');
-    return '<div class="cards">' + cards + (ui.editing ? '<button type="button" class="addboard card span2" data-act="board-add">+ Thêm nhóm mới</button>' : '') + '</div>';
+    return '<div class="cards">' + cards + (ui.editing ? '<button type="button" class="addboard card w6" data-act="board-add">+ Thêm nhóm mới</button>' : '') + '</div>';
   }
   function titem(key, x) {
     var link = x.kind === 'link', ed = ui.editing, inner;
@@ -654,7 +759,7 @@
     } else {
       inner = fld({ c: 'titem', id: x.id, k: 'text', val: x.text, area: 1, cls: 'notefield', ph: 'Viết note…', label: 'Nội dung note', grp: key });
     }
-    return '<div class="item' + (x.hidden ? ' is-hidden' : '') + '"><button type="button" class="kind ' + (link ? '' : 'note') + '"' + (ed ? '' : ' disabled') +
+    return '<div class="item' + (x.hidden ? ' is-hidden' : '') + '"' + (ed ? dattr('titem', x.id, key) : '') + '>' + (ed ? mv('titem', x.id, key) : '') + '<button type="button" class="kind ' + (link ? '' : 'note') + '"' + (ed ? '' : ' disabled') +
       ' data-act="titem-kind" data-grp="' + esc(key) + '" data-id="' + x.id + '" aria-label="' + (link ? 'Đổi thành Note' : 'Đổi thành Link') + '">' + (link ? 'LINK' : 'NOTE') + '</button>' +
       '<div class="ibody">' + inner + (x.hidden ? '<span class="tag">Đã ẩn</span>' : '') + '</div>' +
       (ed ? '<button type="button" class="minibtn" data-act="titem-hide" data-grp="' + esc(key) + '" data-id="' + x.id + '">' + (x.hidden ? 'Hiện' : 'Ẩn') + '</button>' +
@@ -664,7 +769,7 @@
   /* ================= 3. Ghi chú ================= */
   function notesBody() {
     var q = ui.q.toLowerCase();
-    var rows = S.notes.filter(function (n) { return (!n.hidden || ui.showHiddenNotes) && (!q || (n.date + ' ' + n.text).toLowerCase().indexOf(q) >= 0); });
+    var rows = S.notes.filter(function (n) { return (!n.hidden || ui.editing) && (!q || (n.date + ' ' + n.text).toLowerCase().indexOf(q) >= 0); });
     var dir = ui.notesSort === 'asc' ? 1 : -1;
     rows = rows.slice().sort(function (a, b) {
       if (a.date === b.date) return dir * (a.id - b.id);
@@ -678,14 +783,70 @@
     if (ui.notesMode === 'cards') {
       return '<div class="ncards">' + rows.map(function (n) {
         return '<article class="ncard' + (n.hidden ? ' is-hidden' : '') + '"><div class="top">' + fld({ c: 'note', id: n.id, k: 'date', val: n.date, type: 'date', label: 'Ngày' }) + (n.hidden ? '<span class="tag">Đã ẩn</span>' : '') + del(n) + '</div>' +
-          fld({ c: 'note', id: n.id, k: 'text', val: n.text, area: 1, ph: 'Viết note…', label: 'Ghi chú' }) + '</article>';
+          rte(n) + noteLink(n) + '</article>';
       }).join('') + '</div>';
     }
-    return '<section class="ntable" aria-label="Bảng ghi chú"><div class="scroll"><div class="in"><div class="nth"><span>Ngày</span><span>Note</span><span></span></div>' +
+    return '<section class="ntable" aria-label="Bảng ghi chú"><div class="scroll"><div class="in"><div class="nth"><span>Ngày</span><span>Note</span><span>Link</span><span></span></div>' +
       rows.map(function (n) {
         return '<div class="nrow' + (n.hidden ? ' is-hidden' : '') + '"><div>' + fld({ c: 'note', id: n.id, k: 'date', val: n.date, type: 'date', label: 'Ngày' }) + (n.hidden ? '<span class="tag">Đã ẩn</span>' : '') + '</div><div>' +
-          fld({ c: 'note', id: n.id, k: 'text', val: n.text, area: 1, ph: 'Viết note…', label: 'Ghi chú' }) + '</div><div class="delcol">' + del(n) + '</div></div>';
+          rte(n) + '</div><div>' + noteLink(n) + '</div><div class="delcol">' + del(n) + '</div></div>';
       }).join('') + '</div></div></section>';
+  }
+
+  /* ----- Ô ghi chú có định dạng chữ + cột Link ----- */
+  var RT_OK = { B: 1, STRONG: 1, I: 1, EM: 1, U: 1, S: 1, STRIKE: 1, DEL: 1, UL: 1, OL: 1, LI: 1, BR: 1, DIV: 1, P: 1, SPAN: 1, FONT: 1, MARK: 1 };
+  function cleanStyle(s) {
+    var keep = [];
+    String(s || '').split(';').forEach(function (d) {
+      var p = d.split(':'); if (p.length < 2) return;
+      var k = p[0].trim().toLowerCase(), v = p.slice(1).join(':').trim();
+      if ((k === 'color' || k === 'background-color') && /^(#[0-9a-f]{3,8}|rgba?\([\d\s,.%]+\)|[a-z]+)$/i.test(v)) keep.push(k + ':' + v);
+      else if (k === 'font-weight' && /^(bold|normal|[1-9]00)$/.test(v)) keep.push(k + ':' + v);
+      else if (k === 'font-style' && /^(italic|normal)$/.test(v)) keep.push(k + ':' + v);
+      else if ((k === 'text-decoration' || k === 'text-decoration-line') && /^[a-z\s-]+$/i.test(v)) keep.push(k + ':' + v);
+    });
+    return keep.join(';');
+  }
+  function cleanHtml(h) {
+    var doc = new DOMParser().parseFromString('<body>' + String(h || '') + '</body>', 'text/html'), out = document.createElement('div');
+    (function walk(src, dst) {
+      for (var n = src.firstChild; n; n = n.nextSibling) {
+        if (n.nodeType === 3) { dst.appendChild(document.createTextNode(n.nodeValue)); continue; }
+        if (n.nodeType !== 1) continue;
+        var tag = n.tagName;
+        if (tag === 'SCRIPT' || tag === 'STYLE') continue;
+        if (!RT_OK[tag]) { walk(n, dst); continue; }
+        var el = document.createElement(tag === 'FONT' ? 'span' : tag.toLowerCase());
+        var st = cleanStyle(n.getAttribute('style'));
+        if (tag === 'FONT' && /^#[0-9a-f]{3,8}$/i.test(n.getAttribute('color') || '')) st += ';color:' + n.getAttribute('color');
+        if (st) el.setAttribute('style', st);
+        walk(n, el); dst.appendChild(el);
+      }
+    })(doc.body, out);
+    return out.innerHTML;
+  }
+  function rte(n) {
+    var ed = ui.editing, h = n.html != null ? cleanHtml(n.html) : esc(n.text).replace(/\n/g, '<br>');
+    return '<div class="rte' + (ed ? ' ed' : '') + '"' + (ed ? ' contenteditable="true" spellcheck="false" role="textbox" aria-multiline="true" data-ph="Viết note…"' : '') +
+      ' data-rte="note" data-id="' + n.id + '" aria-label="Ghi chú">' + h + '</div>';
+  }
+  function noteLink(n) {
+    if (ui.editing) return fld({ c: 'note', id: n.id, k: 'link', val: n.link || '', ph: 'Dán link…', label: 'Link' });
+    return n.link ? '<a class="pill" href="' + esc(safeUrl(n.link)) + '" target="_blank" rel="noopener noreferrer">Mở link ↗</a>' : '<span class="dash">—</span>';
+  }
+  function richToolbar() {
+    function b(cmd, face, label, v) { return '<button type="button" class="rtbtn" data-rt="' + cmd + '"' + (v ? ' data-v="' + v + '"' : '') + ' title="' + label + '" aria-label="' + label + '">' + face + '</button>'; }
+    return '<div class="rtb" role="toolbar" aria-label="Định dạng chữ">' +
+      b('bold', '<b>B</b>', 'In đậm') + b('italic', '<i>I</i>', 'In nghiêng') + b('underline', '<u>U</u>', 'Gạch chân') + b('strikeThrough', '<s>S</s>', 'Gạch ngang') +
+      '<span class="rtsep"></span>' +
+      RT_COLORS.map(function (c) { return '<button type="button" class="rtc" data-rt="foreColor" data-v="' + c[0] + '" style="--c:' + c[0] + '" title="Chữ màu ' + c[1] + '" aria-label="Chữ màu ' + c[1] + '">A</button>'; }).join('') +
+      '<span class="rtsep"></span>' +
+      [['#FFE27A', 'vàng'], ['#FFB8D1', 'hồng'], ['#B8F0C8', 'xanh lá'], ['#BFE0FF', 'xanh dương']].map(function (c) { return '<button type="button" class="rtc hl" data-rt="hiliteColor" data-v="' + c[0] + '" style="--c:' + c[0] + '" title="Tô nền ' + c[1] + '" aria-label="Tô nền ' + c[1] + '"></button>'; }).join('') +
+      '<span class="rtsep"></span>' + b('insertUnorderedList', '• —', 'Danh sách') + b('removeFormat', 'Tx', 'Xoá định dạng') + '</div>';
+  }
+  function syncRte(el) {
+    var i = idxById(S.notes, +el.dataset.id);
+    if (i >= 0) { S.notes[i].html = cleanHtml(el.innerHTML); S.notes[i].text = el.innerText.replace(/ /g, ' ').trim(); }
   }
 
   /* ================= 4. Cảm xúc hôm nay ================= */
@@ -727,11 +888,17 @@
   }
   function moodBody() {
     var md = ui.md, today = todayIso(), days = +md.range || 7, from = isoAdd(today, -(days - 1));
+    if (md.range === 'all') {
+      from = S.moods.reduce(function (m, e) { return e.date < m ? e.date : m; }, today);
+      days = Math.round((new Date(today + 'T00:00:00') - new Date(from + 'T00:00:00')) / 864e5) + 1;
+    }
     var list = S.moods.filter(function (e) { return e.date >= from && e.date <= today; })
       .sort(function (a, b) { return a.date < b.date ? 1 : (a.date > b.date ? -1 : b.id - a.id); });
     var form = '<section class="card moodform" id="moodform" aria-label="Ghi cảm xúc">' +
       '<div class="mhead"><h2>' + (md.date === today ? 'Hôm nay bạn thấy thế nào?' : 'Ngày ' + fmtDM(md.date) + ' bạn thấy thế nào?') + '</h2>' +
-      '<div class="mdatebox"><span class="mdatechip">' + esc(dayName(md.date)) + ' · ' + fmtDM(md.date) + (md.date === today ? ' · Hôm nay' : '') + '</span>' +
+      '<div class="mdatebox"><button type="button" class="minibtn" data-act="mood-shift" data-d="-1" aria-label="Ngày trước">‹</button>' +
+      '<span class="mdatechip">' + esc(dayName(md.date)) + ' · ' + fmtDM(md.date) + (md.date === today ? ' · Hôm nay' : '') + '</span>' +
+      '<button type="button" class="minibtn" data-act="mood-shift" data-d="1" aria-label="Ngày sau"' + (md.date >= today ? ' disabled' : '') + '>›</button>' +
       (md.date === today ? '' : '<button type="button" class="minibtn" data-act="mood-today">Về hôm nay</button>') + '</div></div>' +
       '<div class="mpick" role="radiogroup" aria-label="Chọn cảm xúc">' + MOODS.map(function (m) {
         var on = md.mood === m.id;
@@ -755,7 +922,7 @@
     d = have[today] ? today : isoAdd(today, -1);
     while (have[d] && streak < 4000) { streak++; d = isoAdd(d, -1); }
     var sum = '<section class="card msum" aria-label="Tổng hợp"><div class="mhead"><h2>Tổng hợp</h2><div class="seg" role="group" aria-label="Khoảng thời gian">' +
-      [['7', '7 ngày'], ['30', '30 ngày'], ['90', '90 ngày']].map(function (r) {
+      [['7', '7 ngày'], ['30', '30 ngày'], ['90', '90 ngày'], ['all', 'Tất cả']].map(function (r) {
         return '<button type="button" class="' + (md.range === r[0] ? 'on' : '') + '" data-act="mood-range" data-r="' + r[0] + '" aria-pressed="' + (md.range === r[0]) + '">' + r[1] + '</button>';
       }).join('') + '</div></div>' +
       '<div class="mstats"><div class="mstat"><b>' + total + '/' + days + '</b><span>ngày đã ghi</span></div><div class="mstat"><b>' + (total ? avg.toFixed(1) : '–') + '</b><span>năng lượng TB</span></div><div class="mstat"><b>' + streak + '</b><span>ngày liên tiếp</span></div></div>' +
@@ -1081,7 +1248,6 @@
       }
       case 'import-pick': { var f = document.getElementById('importFile'); if (f) f.click(); return; }
       case 'pick-team': ui.team = (team === ui.team ? 'all' : team); break;
-      case 'toggle-hidden': ui.showHidden = !ui.showHidden; break;
       case 'add-game': S.games.unshift({ id: nid(), name: '', sub: '', team: team || 'NovaS', link: '', store: '', src: 'raw', status: 'Game mới', hidden: false, note: '' }); ui.q = ''; break;
       case 'hide-game': { i = idxById(S.games, id); if (i >= 0) S.games[i].hidden = !S.games[i].hidden; break; }
       case 'del-game': removeTo('game', null, id); break;
@@ -1094,7 +1260,7 @@
       case 'titem-del': removeTo('titem', grp, id); break;
       case 'board-add': {
         var nb = 'b' + nid();
-        S.boards.push({ id: nb, name: 'Nhóm mới', color: 'rose', cols: 1 });
+        S.boards.push({ id: nb, name: 'Nhóm mới', color: 'rose', w: 3, h: 0 });
         S.teamItems[nb] = []; ui.q = ''; break;
       }
       case 'board-del': {
@@ -1119,8 +1285,11 @@
         var md = ui.md;
         if (!md.mood) { ui.toast = 'Hãy chọn một cảm xúc trước nhé!'; ui.toastType = 'warn'; break; }
         var ex = findMood(md.date), txt = md.text.trim();
-        if (ex) { ex.mood = md.mood; ex.energy = md.energy; ex.text = txt; }
-        else S.moods.push({ id: nid(), date: md.date, mood: md.mood, energy: md.energy, text: txt });
+        await mergeStoredMoods();
+        ex = findMood(md.date);
+        if (ex) { ex.mood = md.mood; ex.energy = md.energy; ex.text = txt; ex.ts = Date.now(); }
+        else S.moods.push({ id: nid(), date: md.date, mood: md.mood, energy: md.energy, text: txt, ts: Date.now() });
+        delete ui.delMoods[md.date];
         var okm = await persist();
         md.text = txt; md.say = txt || MOOD_ECHO[md.mood]; md.sv++;
         ui.toast = okm ? 'Đã lưu cảm xúc ngày ' + fmtDM(md.date) + '.' : 'Chưa lưu được vào trình duyệt (có thể đang bật chế độ riêng tư).';
@@ -1129,13 +1298,21 @@
       }
       case 'mood-open': loadMoodDate(el.dataset.date); ui.md.scroll = true; break;
       case 'mood-today': loadMoodDate(todayIso()); break;
-      case 'mood-del': removeTo('mood', null, id); break;
-      case 'note-add': S.notes.unshift({ id: nid(), date: todayIso(), text: '+ ' }); ui.q = ''; break;
+      case 'mood-shift': {
+        var nd = isoAdd(ui.md.date, +el.dataset.d);
+        if (nd <= todayIso()) loadMoodDate(nd);
+        break;
+      }
+      case 'mood-del': {
+        var dm = S.moods.filter(function (x) { return x.id === id; })[0];
+        if (dm) ui.delMoods[dm.date] = 1;
+        removeTo('mood', null, id); break;
+      }
+      case 'note-add': S.notes.unshift({ id: nid(), date: todayIso(), text: '', link: '' }); ui.q = ''; break;
       case 'note-del': removeTo('note', null, id); break;
       case 'notes-mode': ui.notesMode = el.dataset.mode; break;
       case 'notes-sort': ui.notesSort = ui.notesSort === 'desc' ? 'asc' : 'desc'; break;
-      case 'toggle-hidden-items': ui.showHiddenItems = !ui.showHiddenItems; break;
-      case 'toggle-hidden-notes': ui.showHiddenNotes = !ui.showHiddenNotes; break;
+      case 'move': stepItem(el.dataset.dk, grp, el.dataset.id, +el.dataset.dir); break;
       case 'titem-hide': { i = idxById(S.teamItems[grp], id); if (i >= 0) S.teamItems[grp][i].hidden = !S.teamItems[grp][i].hidden; break; }
       case 'note-hide': { i = idxById(S.notes, id); if (i >= 0) S.notes[i].hidden = !S.notes[i].hidden; break; }
       case 'pick-period': ui.period = el.dataset.id; ui.taskTeam = 'all'; break;
@@ -1220,7 +1397,7 @@
     if (PFIELD[c]) { var p = findPeriod(ui.period); if (p) p[PFIELD[c]] = t.value; return; }
     if (c === 'board') {
       var b = findBoard(t.dataset.bid);
-      if (b) b[k] = k === 'cols' ? Math.min(4, Math.max(1, +t.value || 1)) : t.value;
+      if (b) b[k] = k === 'w' ? Math.min(12, Math.max(3, +t.value || 3)) : k === 'h' ? Math.max(0, +t.value || 0) : t.value;
       return;
     }
     var list = listOf(c, t.dataset.grp);
@@ -1242,6 +1419,7 @@
   document.addEventListener('input', function (e) {
     var t = e.target;
     if (!t.dataset || !S) return;
+    if (t.dataset.rte) { syncRte(t); return; }
     if (t.dataset.md === 'text') { ui.md.text = t.value; return; }
     if (t.dataset.c) { if (t.dataset.c !== 'tgname') { setField(t); if (t.tagName === 'TEXTAREA') fit(t); } return; }
     if (t.dataset.search !== undefined) { ui.q = t.value; renderBody(); return; }
@@ -1305,6 +1483,97 @@
     var h = location.hash.replace('#', '');
     if (VIEWS.some(function (v) { return v[0] === h; }) && h !== ui.view) { ui.view = h; ui.q = ''; ui.saved = false; ui.imp = null; ui.toast = ''; render(); }
   });
+  /* ----- Định dạng chữ cho ghi chú (bấm nút khi đang đặt con trỏ trong ô) ----- */
+  document.addEventListener('mousedown', function (e) {
+    if (!S || !e.target.closest) return;
+    var b = e.target.closest('[data-rt]');
+    if (b) {
+      e.preventDefault();
+      var a = document.activeElement, ed = a && a.closest ? a.closest('.rte[contenteditable]') : null;
+      if (!ed) return;
+      document.execCommand('styleWithCSS', false, true);
+      document.execCommand(b.dataset.rt, false, b.dataset.v || null);
+      syncRte(ed);
+      return;
+    }
+    var g = e.target.closest('.grip');
+    if (g) { var r = g.closest('[data-dk]'); if (r) r.setAttribute('draggable', 'true'); }
+  });
+  document.addEventListener('paste', function (e) {
+    var r = e.target.closest ? e.target.closest('.rte[contenteditable]') : null;
+    if (!r) return;
+    e.preventDefault();
+    document.execCommand('insertText', false, (e.clipboardData || window.clipboardData).getData('text/plain'));
+  });
+
+  /* ----- Kéo thả đổi thứ tự ----- */
+  var drag = null;
+  function clearDrag() {
+    var m = document.querySelectorAll('.drop-before,.drop-after,.dragging,[draggable="true"]');
+    for (var i = 0; i < m.length; i++) { m[i].classList.remove('drop-before', 'drop-after', 'dragging'); m[i].removeAttribute('draggable'); }
+  }
+  function dropTarget(e) {
+    if (!drag || !e.target.closest) return null;
+    var t = e.target.closest('[data-dk="' + drag.k + '"]');
+    return t && (t.dataset.dgrp || '') === drag.grp ? t : null;
+  }
+  function dropAfter(t, e) {
+    var r = t.getBoundingClientRect();
+    if (drag.k === 'board' && t.parentNode && r.width < t.parentNode.clientWidth * 0.7) return e.clientX - r.left > r.width / 2;
+    return e.clientY - r.top > r.height / 2;
+  }
+  document.addEventListener('mouseup', function () { if (!drag) clearDrag(); });
+  document.addEventListener('dragstart', function (e) {
+    var r = e.target.closest ? e.target.closest('[data-dk]') : null;
+    if (!r || r.getAttribute('draggable') !== 'true') return;
+    drag = { k: r.dataset.dk, id: r.dataset.did, grp: r.dataset.dgrp || '' };
+    e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', drag.id); } catch (x) {}
+    r.classList.add('dragging');
+  });
+  document.addEventListener('dragover', function (e) {
+    var t = dropTarget(e);
+    if (!t) return;
+    e.preventDefault();
+    var m = document.querySelectorAll('.drop-before,.drop-after');
+    for (var i = 0; i < m.length; i++) m[i].classList.remove('drop-before', 'drop-after');
+    t.classList.add(dropAfter(t, e) ? 'drop-after' : 'drop-before');
+  });
+  document.addEventListener('drop', function (e) {
+    var t = dropTarget(e);
+    if (!t) return;
+    e.preventDefault();
+    var d = drag, after = dropAfter(t, e);
+    drag = null; clearDrag();
+    if (moveItem(d.k, d.grp, d.id, t.dataset.did, after)) render();
+  });
+  document.addEventListener('dragend', function () { drag = null; clearDrag(); });
+
+  /* ----- Kéo góc để đổi kích thước bảng (Link team) ----- */
+  document.addEventListener('pointerdown', function (e) {
+    var h = S && e.target.closest ? e.target.closest('.rsz') : null;
+    if (!h) return;
+    e.preventDefault();
+    var card = h.closest('.card'), grid = card.parentNode, b = findBoard(h.dataset.bid);
+    if (!b) return;
+    var left = card.getBoundingClientRect().left, startH = card.offsetHeight, sy = e.clientY, vert = false;
+    function onMove(ev) {
+      var cs = getComputedStyle(grid), cols = cs.gridTemplateColumns.split(' ').length || 12, gap = parseFloat(cs.columnGap) || 0;
+      var colw = (grid.clientWidth + gap) / cols;
+      b.w = Math.min(12, Math.max(3, Math.round(Math.round((ev.clientX - left + gap) / colw) * 12 / cols)));
+      card.className = card.className.replace(/\bw\d+\b/, 'w' + b.w);
+      if (Math.abs(ev.clientY - sy) > 8) vert = true;
+      if (vert) { b.h = Math.max(160, Math.round(startH + ev.clientY - sy)); card.style.height = b.h + 'px'; card.classList.add('fixh'); }
+    }
+    function onUp() {
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      render();
+    }
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+  });
+
   setInterval(checkNewDay, 30000);
   document.addEventListener('visibilitychange', function () { if (!document.hidden) checkNewDay(); });
   window.addEventListener('focus', checkNewDay);
