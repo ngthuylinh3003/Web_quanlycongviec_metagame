@@ -269,7 +269,7 @@
       .sort(function (a, b) { return a.k - b.k; }).map(function (x) { return x.n; });
   }
   function ensure(s) {
-    s.avatar = s.avatar || '';
+    s.avatar = s.avatar || ''; s.ts = +s.ts || 0;
     s.games = s.games || []; s.notes = s.notes || []; s.periods = s.periods || []; s.teamItems = s.teamItems || {};
     s.tables = (s.tables && !Array.isArray(s.tables)) ? s.tables : {};
     ['chung'].concat(LINK_TEAMS).forEach(function (k) { s.teamItems[k] = s.teamItems[k] || []; });
@@ -342,12 +342,130 @@
     if (!local) return;
     try { mergeMoodList(ensure(await C.decryptJSON(KEY, local)).moods); } catch (e) {}
   }
-  async function persist() {
+  /* Lưu vào trình duyệt (bản dự phòng trên máy này) */
+  async function persistLocal() {
     try {
       var p = await C.encryptJSON(KEY, S);
       localStorage.setItem('wh_state', JSON.stringify({ base: FILE.ct.slice(0, 24), salt: FILE.salt, iter: FILE.iter, iv: p.iv, ct: p.ct }));
       return true;
     } catch (e) { return false; }
+  }
+  /* Lưu: máy này + đẩy lên Firebase (nếu đã kết nối) */
+  var pq = Promise.resolve();
+  function persist() {
+    var run = pq.then(doPersist, doPersist);
+    pq = run.catch(function () {});
+    return run;
+  }
+  async function doPersist() {
+    CL.busy = true;
+    S.ts = Date.now();
+    var ok = await persistLocal();
+    if (ok) await pushUp();
+    CL.busy = false; refreshSync();
+    return ok;
+  }
+
+  /* ================= Đồng bộ qua Firebase (dữ liệu đã mã hoá trên máy trước khi gửi) ================= */
+  var FB = { apiKey: 'AIzaSyDQTZEcrVzvcbj1bEO16fMDd8c_4ikcNIw', projectId: 'game-work-hub-chiphoho', email: 'linh@gamehub.app' };
+  var FB_DOC = 'https://firestore.googleapis.com/v1/projects/' + FB.projectId + '/databases/(default)/documents/hub/state';
+  var CL = { ck: null, ckRaw: '', token: '', refresh: '', exp: 0, seen: 0, busy: false, err: false };
+  function saveFbSession() {
+    try { sessionStorage.setItem('wh_fb', JSON.stringify({ ck: CL.ckRaw, refresh: CL.refresh })); } catch (e) {}
+  }
+  async function cloudLogin(user, pass) {
+    CL = { ck: null, ckRaw: '', token: '', refresh: '', exp: 0, seen: 0, busy: false, err: false };
+    try {
+      var ck = await C.deriveKey(user, pass, new TextEncoder().encode('wh-cloud-v1:' + FB.projectId), C.ITER, true);
+      var r = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + FB.apiKey, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: FB.email, password: pass, returnSecureToken: true })
+      });
+      if (!r.ok) throw new Error('auth');
+      var j = await r.json();
+      CL.token = j.idToken; CL.refresh = j.refreshToken; CL.exp = Date.now() + (+j.expiresIn || 3600) * 1000;
+      CL.ck = ck; CL.ckRaw = await C.exportKey(ck);
+      saveFbSession();
+    } catch (e) { CL.ck = null; CL.err = true; }
+  }
+  function cloudResume() {
+    var s = null;
+    try { s = JSON.parse(sessionStorage.getItem('wh_fb') || 'null'); } catch (e) {}
+    if (!s || !s.ck || !s.refresh) { CL.err = true; return Promise.resolve(); }
+    return C.importKey(s.ck).then(function (k) { CL.ck = k; CL.ckRaw = s.ck; CL.refresh = s.refresh; }, function () { CL.err = true; });
+  }
+  async function fbToken() {
+    if (CL.token && Date.now() < CL.exp - 60000) return CL.token;
+    if (!CL.refresh) throw new Error('noauth');
+    var r = await fetch('https://securetoken.googleapis.com/v1/token?key=' + FB.apiKey, {
+      method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(CL.refresh)
+    });
+    if (!r.ok) throw new Error('refresh');
+    var j = await r.json();
+    CL.token = j.id_token; CL.refresh = j.refresh_token; CL.exp = Date.now() + (+j.expires_in || 3600) * 1000;
+    saveFbSession();
+    return CL.token;
+  }
+  async function fbGet() {
+    var r = await fetch(FB_DOC, { headers: { Authorization: 'Bearer ' + await fbToken() } });
+    if (r.status === 404) return null;
+    if (!r.ok) throw new Error('get ' + r.status);
+    var f = (await r.json()).fields || {};
+    if (!f.ct || !f.iv) return null;
+    return { iv: f.iv.stringValue, ct: f.ct.stringValue, ts: +((f.ts && f.ts.integerValue) || 0) };
+  }
+  async function fbPut(p, ts) {
+    var r = await fetch(FB_DOC + '?updateMask.fieldPaths=iv&updateMask.fieldPaths=ct&updateMask.fieldPaths=ts', {
+      method: 'PATCH', headers: { Authorization: 'Bearer ' + await fbToken(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields: { iv: { stringValue: p.iv }, ct: { stringValue: p.ct }, ts: { integerValue: String(ts) } } })
+    });
+    if (!r.ok) throw new Error('put ' + r.status);
+  }
+  async function pushUp() {
+    if (!CL.ck || !S) { ui.sync = 'off'; return; }
+    try {
+      var d = await fbGet();
+      if (d && d.ts > CL.seen) {
+        mergeMoodList(ensure(await C.decryptJSON(CL.ck, d)).moods);
+        await persistLocal();
+        ui.toast = 'Một máy khác vừa lưu trước đó. Mình đã gộp nhật ký cảm xúc; các phần khác lấy theo bản bạn vừa lưu.'; ui.toastType = 'warn';
+      }
+      await fbPut(await C.encryptJSON(CL.ck, S), S.ts);
+      CL.seen = S.ts; ui.sync = 'ok';
+    } catch (e) { ui.sync = 'fail'; }
+  }
+  /* Kéo bản mới nhất từ Firebase về (true nếu dữ liệu trên máy vừa được thay) */
+  async function syncDown() {
+    if (!CL.ck || !S) return false;
+    var d = await fbGet();
+    if (!d) { await persist(); return false; }
+    CL.seen = d.ts;
+    if (d.ts > (S.ts || 0)) {
+      var cs = ensure(await C.decryptJSON(CL.ck, d)), mine = S.moods;
+      try { var cur = localStorage.getItem('wh_state'); if (cur) localStorage.setItem('wh_backup', cur); } catch (e) {}
+      S = cs; S.ts = d.ts;
+      var changed = mergeMoodList(mine);
+      await persistLocal();
+      if (changed) await persist();
+      ui.sync = 'ok';
+      return true;
+    }
+    if (d.ts < S.ts) await pushUp(); else ui.sync = 'ok';
+    return false;
+  }
+  function refreshSync() {
+    var u = $('#util');
+    if (u && S) u.innerHTML = utilHtml();
+  }
+  async function syncTick() {
+    if (!S || !CL.ck || CL.busy || ui.editing) return;
+    CL.busy = true;
+    try {
+      if (ui.sync === 'fail') await pushUp();
+      if (await syncDown()) render();
+    } catch (e) { ui.sync = 'fail'; }
+    CL.busy = false; refreshSync();
   }
 
   /* ================= Khởi động & đăng nhập ================= */
@@ -371,7 +489,7 @@
     var raw = null;
     try { raw = sessionStorage.getItem('wh_key'); } catch (e) {}
     if (raw) {
-      try { KEY = await C.importKey(raw); await start(await C.decryptJSON(KEY, FILE)); return; }
+      try { KEY = await C.importKey(raw); var fd = await C.decryptJSON(KEY, FILE); await cloudResume(); await start(fd); return; }
       catch (e) { KEY = null; try { sessionStorage.removeItem('wh_key'); } catch (e2) {} }
     }
     showLogin('');
@@ -394,6 +512,7 @@
       KEY = r.key;
       try { sessionStorage.setItem('wh_key', await C.exportKey(KEY)); } catch (e) {}
       cred = { u: user, p: pass };
+      await cloudLogin(user, pass);
       await start(r.data);
       var prev = null;
       try { prev = JSON.parse(localStorage.getItem('wh_state_prev') || 'null'); } catch (e2) {}
@@ -416,12 +535,17 @@
       S = ensure(fileData.v ? fileData : buildState(fileData));
       if (local && local.base !== base) {
         var old = await oldState(local), kept = false;
-        if (old) { kept = mergeMoodList(old.moods); if (kept) await persist(); }
+        if (old) { kept = mergeMoodList(old.moods); if (kept) await persistLocal(); }
         else { try { localStorage.setItem('wh_state_prev', JSON.stringify(local)); } catch (e) {} }
         ui.toast = 'Đã nạp dữ liệu mới từ web (chỉnh sửa cũ trên trình duyệt này đã được thay' + (kept ? ', nhưng nhật ký cảm xúc các ngày trước vẫn được giữ lại)' : ')') + '.'; ui.toastType = 'info';
       }
     }
     try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+    ui.sync = CL.ck ? 'ok' : 'off';
+    if (CL.ck) {
+      try { await Promise.race([syncDown(), sleep(8000).then(function () { throw new Error('slow'); })]); }
+      catch (e) { ui.sync = 'fail'; }
+    }
     ui.period = latestPeriodId();
     var h = location.hash.replace('#', '');
     ui.view = VIEWS.some(function (v) { return v[0] === h; }) ? h : 'games';
@@ -430,7 +554,8 @@
     render();
   }
   function logout() {
-    try { sessionStorage.removeItem('wh_key'); } catch (e) {}
+    try { sessionStorage.removeItem('wh_key'); sessionStorage.removeItem('wh_fb'); } catch (e) {}
+    CL = { ck: null, ckRaw: '', token: '', refresh: '', exp: 0, seen: 0, busy: false, err: false };
     KEY = null; S = null; ui.editing = false; ui.trash = []; ui.toast = ''; ui.saved = false;
     clearInterval(typer);
     showLogin('');
@@ -511,6 +636,8 @@
   }
   function utilHtml() {
     var h = '';
+    var sy = ui.sync === 'ok' ? ['ok', '☁ Đã đồng bộ', 'Dữ liệu đã được lưu chung cho mọi máy'] : ui.sync === 'fail' ? ['fail', '☁ Chưa đồng bộ', 'Chưa gửi được lên mạng, sẽ tự thử lại. Dữ liệu vẫn được lưu trên máy này'] : CL.err ? ['fail', '☁ Chưa kết nối', 'Chưa kết nối được Firebase, dữ liệu chỉ lưu trên máy này'] : null;
+    if (sy) h += '<span class="syncchip ' + sy[0] + '" title="' + sy[2] + '">' + sy[1] + '</span>';
     if (ui.editing) {
       h += '<button type="button" class="rl" data-act="recover"' + (ui.trash.length ? '' : ' disabled') + '>↶ Khôi phục · ' + ui.trash.length + '</button>' +
         '<button type="button" class="rl green" data-act="save">✓ Lưu</button>';
@@ -1575,8 +1702,9 @@
   });
 
   setInterval(checkNewDay, 30000);
-  document.addEventListener('visibilitychange', function () { if (!document.hidden) checkNewDay(); });
-  window.addEventListener('focus', checkNewDay);
+  setInterval(syncTick, 60000);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) { checkNewDay(); syncTick(); } });
+  window.addEventListener('focus', function () { checkNewDay(); syncTick(); });
   window.addEventListener('beforeunload', function (e) {
     if (ui.editing) { e.preventDefault(); e.returnValue = ''; }
   });

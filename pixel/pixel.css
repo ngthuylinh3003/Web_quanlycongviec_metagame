@@ -53,6 +53,9 @@ nav{flex:1 1 0;min-width:280px;overflow-x:auto;padding-top:2px}
 .rl.dark{background:var(--accent);color:#fff}
 .rl.green{background:#2F7A4A;color:#fff}
 .rl:disabled{opacity:.5}
+.syncchip{font-size:12.5px;font-weight:800;padding:6px 10px;border-radius:10px;border:2px solid var(--edge);background:#fff;white-space:nowrap}
+.syncchip.ok{color:#2F7A4A;border-color:#BFE0C8;background:#EAF6EC}
+.syncchip.fail{color:#8A4B0B;border-color:#F0D3A6;background:#FFF3DE}
 
 /* ===== Trang ===== */
 .page{max-width:1280px;margin:0 auto;padding:56px 28px 72px;display:flex;flex-direction:column;gap:32px;position:relative}
